@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Amarachi Blossom — Portfolio
 
-## Getting Started
+Personal portfolio for [Amarachi Blossom](https://amarachiblossom.com), Product Designer.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router, static generation)
+- **React 19** + **TypeScript**
+- **Tailwind CSS v4** with tokens sourced from the Figma design
+- **Framer Motion** for scroll-reveal animations
+- **Lucide React** for icons
+
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Site runs at http://localhost:3000. Case studies are at `/work/[slug]` — see `src/lib/case-studies.ts` for the four seeded ones (baby-haven, meerge, landbridge, eye-level).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Editing case studies
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Case study content is data — edit `src/lib/case-studies.ts` and the template at `src/app/(work)/work/[slug]/page.tsx` will pick it up automatically. Each case study is one typed object with hero, overview, problem, process, system, screens, impact, and a next-project pointer.
 
-## Learn More
+## Design tokens
 
-To learn more about Next.js, take a look at the following resources:
+Tokens live in two places:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `src/app/globals.css` — CSS custom properties + Tailwind theme mapping (colors, fonts, tracking, radii)
+- `src/lib/tokens.ts` — TypeScript reference for the type scale
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Both are derived from the Figma file (`RZyd6n6XTQa2IUefG4iKPg`).
 
-## Deploy on Vercel
+## Deploying to Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The project is already configured for zero-config Vercel deployment.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push this repo to GitHub.
+2. In Vercel, click **Add New → Project** and import the repo.
+3. Vercel auto-detects Next.js — no build config needed.
+4. Set the env var `NEXT_PUBLIC_SITE_URL` to your production URL (used by `sitemap.xml` and OG metadata).
+5. Deploy. Custom domain: **Project Settings → Domains**.
+
+```bash
+# Alternative: deploy from the CLI
+npx vercel
+```
+
+## Structure
+
+```
+src/
+├── app/
+│   ├── layout.tsx           # Root — fonts, metadata, body shell
+│   ├── globals.css          # Design tokens
+│   ├── sitemap.ts           # /sitemap.xml
+│   ├── robots.ts            # /robots.txt
+│   ├── (home)/              # Home page group
+│   │   ├── layout.tsx       # Home nav + footer
+│   │   └── page.tsx         # / — composes all home sections
+│   └── (work)/              # Case study group
+│       ├── layout.tsx       # Footer only (case-study nav is per-page)
+│       └── work/[slug]/
+│           └── page.tsx     # Case study template
+├── components/
+│   ├── Container.tsx        # max-w wrapper
+│   ├── Nav.tsx              # Home nav
+│   ├── Footer.tsx           # Shared footer
+│   ├── CaseStudyNav.tsx     # Sticky nav with scroll-spy
+│   ├── SectionLabel.tsx     # 01 — Section number + label
+│   ├── Reveal.tsx           # Scroll-reveal wrapper
+│   └── sections/            # Home page sections
+└── lib/
+    ├── cn.ts                # class merger
+    ├── tokens.ts            # type scale reference
+    └── case-studies.ts      # case study data model + seeds
+```

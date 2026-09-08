@@ -2,25 +2,79 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --surface: #eceef2;
+  --foreground: #0a0a0a;
+  --muted: #717182;
+  --muted-2: #a1a1aa;
+
+  --ink-32: rgba(0, 0, 0, 0.32);
+  --ink-65: rgba(10, 10, 10, 0.65);
+  --ink-76: rgba(0, 0, 0, 0.76);
+  --border-soft: rgba(0, 0, 0, 0.1);
+
+  --accent-pink: #f472b6;
+  --accent-pink-07: rgba(244, 114, 182, 0.07);
+  --accent-pink-18: rgba(244, 114, 182, 0.18);
+
+  --accent-purple: #9333ea;
+  --accent-purple-soft: rgba(147, 51, 234, 0.6);
+  --accent-purple-07: rgba(147, 51, 234, 0.07);
+  --accent-purple-18: rgba(147, 51, 234, 0.18);
+
+  --accent-cyan: #22d3ee;
+  --accent-cyan-07: rgba(34, 211, 238, 0.07);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-ink: var(--foreground);
+  --color-ink-32: var(--ink-32);
+  --color-ink-65: var(--ink-65);
+  --color-ink-76: var(--ink-76);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-border-soft: var(--border-soft);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-accent-pink: var(--accent-pink);
+  --color-accent-pink-07: var(--accent-pink-07);
+  --color-accent-pink-18: var(--accent-pink-18);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-purple-soft: var(--accent-purple-soft);
+  --color-accent-purple-07: var(--accent-purple-07);
+  --color-accent-purple-18: var(--accent-purple-18);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-cyan-07: var(--accent-cyan-07);
+
+  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), "Fraunces", ui-serif, Georgia, serif;
+  --font-body: var(--font-dm-sans), var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Menlo", ui-monospace, "SF Mono", "JetBrains Mono", monospace;
+
+  --tracking-display: -0.0217em;
+  --tracking-h2-lg: -0.0228em;
+  --tracking-h2: -0.0167em;
+  --tracking-body-lg: -0.0225em;
+  --tracking-body: -0.0156em;
+  --tracking-button: -0.0107em;
+  --tracking-label-lg: 0.18em;
+  --tracking-label-sm: 0.05em;
+
+  --radius-card: 16px;
+  --radius-stat: 14px;
+  --radius-pill: 9999px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent-purple);
+  color: #ffffff;
 }

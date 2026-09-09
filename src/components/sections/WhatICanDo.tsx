@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/Container";
 import { SectionLabel } from "@/components/SectionLabel";
+import { cn } from "@/lib/cn";
 import {
   Search,
   Compass,
@@ -85,20 +86,33 @@ const stats = [
   },
 ];
 
-export function WhatICanDo() {
+type WhatICanDoProps = {
+  /** The home page shows a CTA into /me; the /me page hides it. */
+  showExploreCta?: boolean;
+  portraitSrc?: string;
+  portraitRatio?: string;
+  className?: string;
+};
+
+export function WhatICanDo({
+  showExploreCta = true,
+  portraitSrc = "/images/about-portrait.png",
+  portraitRatio = "928 / 956",
+  className,
+}: WhatICanDoProps = {}) {
   const [openKey, setOpenKey] = useState<string>("");
 
   return (
     <section
       id="me"
-      className="border-t border-border-soft pt-[117px] pb-[128px]"
+      className={cn("rule-top pt-[117px] pb-[128px]", className)}
     >
       <Container>
         <div className="grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-20">
           <div>
             <SectionLabel number="03" label="About" />
-            <h2 className="mt-6 text-[56px] font-medium leading-[1.05] tracking-h2 text-ink">
-              What i can do for You
+            <h2 className="mt-6 text-[34px] sm:text-[44px] md:text-[56px] font-medium leading-[1.05] tracking-h2 text-ink">
+              What I can do for you
             </h2>
             <p className="mt-6 max-w-[520px] text-[16px] leading-[1.62] tracking-body text-muted">
               I believe good design is invisible. It doesn&apos;t announce
@@ -166,22 +180,27 @@ export function WhatICanDo() {
               })}
             </ul>
 
-            <div className="mt-10">
-              <Link
-                href="/me"
-                className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3.5 text-[14px] font-medium leading-5 text-white tracking-button transition-opacity hover:opacity-90"
-              >
-                Explore more about me
-                <ArrowRight className="size-4" strokeWidth={2.2} />
-              </Link>
-            </div>
+            {showExploreCta && (
+              <div className="mt-10">
+                <Link
+                  href="/me"
+                  className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3.5 text-[14px] font-medium leading-5 text-white tracking-button transition-opacity hover:opacity-90"
+                >
+                  Explore more about me
+                  <ArrowRight className="size-4" strokeWidth={2.2} />
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Portrait + stats */}
           <div>
-            <div className="relative aspect-[928/956] w-full overflow-hidden rounded-[28px] bg-surface">
+            <div
+              className="relative w-full overflow-hidden rounded-[28px] bg-surface"
+              style={{ aspectRatio: portraitRatio }}
+            >
               <Image
-                src="/images/about-portrait.png"
+                src={portraitSrc}
                 alt="Amarachi Blossom"
                 fill
                 className="object-cover object-center"
@@ -190,7 +209,7 @@ export function WhatICanDo() {
               />
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {stats.map((s) => (
                 <div
                   key={s.label}

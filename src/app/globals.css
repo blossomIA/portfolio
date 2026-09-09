@@ -74,6 +74,33 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Section divider rules that match the page content width (Container is
+   max-w-[1152px] with px-6 gutters => 1104px) instead of stretching the
+   full viewport. Use .rule-top / .rule-bottom in place of border-t/border-b. */
+@layer components {
+  .rule-top,
+  .rule-bottom {
+    position: relative;
+  }
+  .rule-top::before,
+  .rule-bottom::after {
+    content: "";
+    position: absolute;
+    left: 1.5rem;
+    right: 1.5rem;
+    margin-inline: auto;
+    max-width: 1104px;
+    border-top: 1px solid var(--border-soft);
+    pointer-events: none;
+  }
+  .rule-top::before {
+    top: 0;
+  }
+  .rule-bottom::after {
+    bottom: 0;
+  }
+}
+
 ::selection {
   background: var(--accent-purple);
   color: #ffffff;

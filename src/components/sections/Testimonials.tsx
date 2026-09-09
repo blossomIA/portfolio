@@ -109,11 +109,11 @@ export function Testimonials() {
   return (
     <section
       id="testimonials"
-      className="border-t border-border-soft pt-[129px] pb-[128px]"
+      className="rule-top pt-[129px] pb-[128px]"
     >
       <Container>
         <SectionLabel number="05" label="Testimonials" />
-        <h2 className="mt-5 max-w-[1100px] text-[44px] font-medium leading-[1.05] tracking-h2 text-ink md:text-[54px]">
+        <h2 className="mt-5 max-w-[1100px] text-[34px] sm:text-[44px] md:text-[56px] font-medium leading-[1.05] tracking-h2 text-ink">
           Nice things people have said about my work
         </h2>
 

@@ -48,7 +48,7 @@ export function Experience() {
     >
       <Container>
         <SectionLabel number="03" label="Experience" />
-        <h2 className="mt-5 text-[48px] font-medium leading-[1] tracking-h2 text-ink">
+        <h2 className="mt-5 text-[32px] sm:text-[48px] font-medium leading-[1] tracking-h2 text-ink">
           A continuous thread.
         </h2>
 

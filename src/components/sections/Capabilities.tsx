@@ -71,12 +71,12 @@ export function Capabilities() {
   return (
     <section
       id="capabilities"
-      className="border-t border-border-soft pt-[129px] pb-[128px]"
+      className="rule-top pt-[129px] pb-[128px]"
     >
       <Container>
         <SectionLabel number="04" label="Capabilities" />
-        <h2 className="mt-5 text-[48px] font-medium leading-[1] tracking-h2 text-ink">
-          How I turn Chaos into Clarity
+        <h2 className="mt-5 text-[34px] sm:text-[44px] md:text-[56px] font-medium leading-[1.05] tracking-h2 text-ink">
+          How I turn chaos into clarity
         </h2>
 
         <div className="mt-20 grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">

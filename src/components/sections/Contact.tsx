@@ -57,11 +57,11 @@ export function Contact() {
   return (
     <section
       id="contact"
-      className="border-t border-border-soft pt-[98px] pb-[75px]"
+      className="rule-top pt-[98px] pb-[75px]"
     >
       <Container>
         <SectionLabel number="06" label="Contact" />
-        <h2 className="mt-5 max-w-[900px] text-[56px] font-medium leading-[1.05] tracking-h2-lg text-ink md:text-[70px]">
+        <h2 className="mt-5 max-w-[900px] text-[34px] sm:text-[44px] md:text-[56px] font-medium leading-[1.05] tracking-h2 text-ink">
           Have an interesting problem?
         </h2>
         <p className="mt-6 text-[20px] leading-[1.65] tracking-body-lg text-muted">

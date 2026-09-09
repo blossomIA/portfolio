@@ -1,34 +1,123 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import { Container } from "@/components/Container";
-import {
-  Search,
-  Compass,
-  LayoutTemplate,
-  Layers,
-  PlayCircle,
-  Box,
-  Plus,
-  Minus,
-} from "lucide-react";
+import { Capabilities } from "@/components/sections/Capabilities";
+import { WhatICanDo } from "@/components/sections/WhatICanDo";
 
-const skills = [
-  { key: "ai-ux", eyebrow: "AI-RESEARCH", label: "Ai Powered UX Research", icon: Search, body: "Turning transcripts, chat logs, and diary studies into shipping-grade insight, faster than a spreadsheet allows." },
-  { key: "ux-research", eyebrow: "RESEARCH", label: "UX Research & Discovery", icon: Compass, body: "Framing the problem before the pixels. Interviews, diary studies, competitive teardowns, journey maps." },
-  { key: "product-design", eyebrow: "DESIGN", label: "Product Design", icon: LayoutTemplate, body: "End-to-end product work, from information architecture to high-fidelity, opinionated interfaces." },
-  { key: "design-systems", eyebrow: "SYSTEMS", label: "Design Systems", icon: Layers, body: "Tokens, components, docs, treated as a product with its own release cadence, not a Figma library." },
-  { key: "prototyping", eyebrow: "PROTOTYPING", label: "Prototyping & Testing", icon: PlayCircle, body: "Interactive prototypes that pressure-test the idea before engineering touches it." },
-  { key: "3d", eyebrow: "ANIMATION", label: "3D Modelling", icon: Box, body: "Cinema 4D + Spline for brand systems, product marketing renders, and motion pieces.", comingSoon: true },
+// Border colours for the raw (unframed) scrapbook photos. beach + book ship
+// with their frames already baked into the PNG, so they carry no CSS border.
+const frame = {
+  cyan: "#37c6e6",
+  purple: "#8b3dff",
+  pink: "#ff45a8",
+} as const;
+
+type Photo = {
+  src: string;
+  alt: string;
+  baked?: boolean;
+  border?: keyof typeof frame;
+  objectPosition?: string;
+  // Zooms the photo inside its frame (crops the edges), e.g. to cut the
+  // NINE LIVES title/author the way the design does.
+  zoom?: number;
+  // Baked frames keep their native aspect ratio (height is derived from it),
+  // so only their left/top/width matter.
+  ratio?: string;
+  // Position + size as a % of the collage stage (matches scrapbook.png).
+  box: { left: string; top: string; width: string; height: string };
+};
+
+// Ordered so later entries stack on top where the photos overlap.
+const collage: Photo[] = [
+  {
+    src: "/images/me-photos/beach-new.png",
+    alt: "Standing by a beachfront window",
+    baked: true,
+    ratio: "362 / 696",
+    box: { left: "0%", top: "14%", width: "17%", height: "41%" },
+  },
+  {
+    src: "/images/me-photos/book.png",
+    alt: "The Middle Daughter novel",
+    baked: true,
+    ratio: "183 / 348",
+    box: { left: "4%", top: "46%", width: "17.5%", height: "35.5%" },
+  },
+  {
+    src: "/images/me-photos/restaurant.jpg",
+    alt: "A plated dinner",
+    border: "cyan",
+    objectPosition: "center 58%",
+    box: { left: "13%", top: "60%", width: "37%", height: "22%" },
+  },
+  {
+    src: "/images/me-photos/mocktail.jpg",
+    alt: "A mojito at the bar",
+    border: "cyan",
+    objectPosition: "58% center",
+    box: { left: "79%", top: "11%", width: "18%", height: "35%" },
+  },
+  {
+    src: "/images/me-photos/nine-live.jpg",
+    alt: "Nine Lives book cover",
+    border: "purple",
+    objectPosition: "center 30%",
+    zoom: 1.34,
+    box: { left: "70%", top: "38%", width: "22%", height: "38%" },
+  },
+  {
+    src: "/images/me-photos/pool.jpg",
+    alt: "A poolside bar at night",
+    border: "pink",
+    objectPosition: "center 52%",
+    box: { left: "44%", top: "51%", width: "35%", height: "21%" },
+  },
 ];
 
-const capabilities = [
-  { heading: "Research", items: ["User Interviews", "Competitive Analysis", "Journey Mapping", "Personas", "Usability Testing"] },
-  { heading: "UX", items: ["Information Architecture", "User Flows", "Wireframing", "Accessibility Audits"] },
-  { heading: "UI", items: ["Visual Design", "Design Systems", "Responsive Design", "Prototyping", "Motion Design"] },
-  { heading: "Tools", items: ["Figma", "FigJam", "Framer", "Miro", "Notion", "Slack", "Claude", "Adobe Creative Suite"] },
+// Mobile-only: an evenly framed 2-column scrapbook grid. `box` is unused here.
+const mobileGrid: Photo[] = [
+  { src: "/images/me-photos/beach-new.png", alt: "Standing by a beachfront window", baked: true, ratio: "3 / 4", box: { left: "", top: "", width: "", height: "" } },
+  { src: "/images/me-photos/mocktail.jpg", alt: "A mojito at the bar", border: "cyan", objectPosition: "58% center", ratio: "3 / 4", box: { left: "", top: "", width: "", height: "" } },
+  { src: "/images/me-photos/book.png", alt: "The Middle Daughter novel", baked: true, ratio: "3 / 4", box: { left: "", top: "", width: "", height: "" } },
+  { src: "/images/me-photos/nine-live.jpg", alt: "Nine Lives book cover", border: "purple", objectPosition: "center top", ratio: "3 / 4", box: { left: "", top: "", width: "", height: "" } },
+  { src: "/images/me-photos/restaurant.jpg", alt: "A plated dinner", border: "cyan", objectPosition: "center 58%", ratio: "4 / 3", box: { left: "", top: "", width: "", height: "" } },
+  { src: "/images/me-photos/pool.jpg", alt: "A poolside bar at night", border: "pink", objectPosition: "center 52%", ratio: "4 / 3", box: { left: "", top: "", width: "", height: "" } },
 ];
+
+function CollagePhoto({ photo }: { photo: Photo }) {
+  return (
+    <div
+      className="absolute overflow-hidden rounded-[14px]"
+      style={{
+        left: photo.box.left,
+        top: photo.box.top,
+        width: photo.box.width,
+        ...(photo.baked
+          ? { aspectRatio: photo.ratio }
+          : { height: photo.box.height, border: `3px solid ${frame[photo.border!]}` }),
+      }}
+    >
+      <Image
+        src={photo.src}
+        alt={photo.alt}
+        fill
+        sizes="(min-width: 1180px) 300px, 45vw"
+        className="object-cover"
+        style={
+          photo.baked
+            ? undefined
+            : {
+                objectPosition: photo.objectPosition,
+                ...(photo.zoom ? { transform: `scale(${photo.zoom})` } : {}),
+              }
+        }
+        unoptimized
+      />
+    </div>
+  );
+}
 
 function SectionLabel({ n, label }: { n: string; label: string }) {
   return (
@@ -41,248 +130,169 @@ function SectionLabel({ n, label }: { n: string; label: string }) {
 }
 
 export default function MePage() {
-  const [openKey, setOpenKey] = useState<string>("");
-
   return (
     <>
-      {/* 1, What I can do for You */}
-      <section className="pt-24 pb-32 border-b border-border-soft">
-        <Container>
-          <div className="grid grid-cols-1 gap-x-24 gap-y-14 md:grid-cols-2">
-            <div>
-              <SectionLabel n="03" label="About" />
-              <h1 className="mt-8 text-[44px] font-medium leading-[1.05] tracking-h2 text-ink md:text-[52px]">
-                What i can do for You
-              </h1>
-              <p className="mt-6 max-w-[440px] text-[14px] leading-[1.72] tracking-body text-muted">
-                I believe good design is invisible. It doesn&apos;t announce
-                itself. It just works, clearly, calmly, without drama. I ask
-                uncomfortable questions before drawing comfortable interfaces
-                and interesting solutions.
-              </p>
-
-              <ul className="mt-12 divide-y divide-border-soft">
-                {skills.map((s) => {
-                  const open = openKey === s.key;
-                  return (
-                    <li key={s.key}>
-                      <button
-                        type="button"
-                        onClick={() => setOpenKey(open ? "" : s.key)}
-                        className="group flex w-full items-center gap-4 py-4 text-left"
-                        aria-expanded={open}
-                      >
-                        <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-purple/10 text-accent-purple">
-                          <s.icon className="size-4" strokeWidth={2} />
-                        </span>
-                        <span className="flex-1">
-                          <span className="block font-mono text-[9px] uppercase tracking-[0.18em] text-accent-purple">
-                            {s.eyebrow}
-                          </span>
-                          <span className="mt-0.5 block text-[15px] font-medium leading-5 text-ink">
-                            {s.label}
-                          </span>
-                        </span>
-                        {s.comingSoon && (
-                          <span className="rounded-full bg-accent-pink/15 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-accent-pink">
-                            Coming soon
-                          </span>
-                        )}
-                        <span
-                          aria-hidden
-                          className={`inline-flex size-7 shrink-0 items-center justify-center rounded-full border transition-colors ${
-                            open ? "border-accent-purple bg-accent-purple text-white" : "border-border-soft text-muted"
-                          }`}
-                        >
-                          {open ? <Minus className="size-3" /> : <Plus className="size-3" />}
-                        </span>
-                      </button>
-                      <div className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-                        <div className="min-h-0 overflow-hidden">
-                          <p className="pb-4 pl-[52px] pr-4 text-[13px] leading-[1.7] text-muted">
-                            {s.body}
-                          </p>
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-
-            <div>
-              <div className="relative aspect-[928/720] w-full overflow-hidden rounded-[16px] bg-surface">
-                <Image
-                  src="/images/about-portrait.png"
-                  alt="Amarachi Blossom"
-                  fill
-                  className="object-cover object-center"
-                  sizes="(min-width: 768px) 480px, 100vw"
-                  unoptimized
-                  priority
-                />
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-[14px] border border-border-soft bg-white p-5">
-                  <p className="text-[28px] font-medium leading-none tracking-h2 text-ink">3+</p>
-                  <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-accent-purple">
-                    Years Designing
-                  </p>
-                  <p className="mt-2 text-[12px] leading-[1.55] text-muted">
-                    Crafting interfaces across mobile, web, and emerging
-                    platforms, always led by user intent.
-                  </p>
-                </div>
-                <div className="rounded-[14px] border border-border-soft bg-white p-5">
-                  <p className="text-[28px] font-medium leading-none tracking-h2 text-ink">1</p>
-                  <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-accent-purple">
-                    Constant Goal
-                  </p>
-                  <p className="mt-2 text-[12px] leading-[1.55] text-muted">
-                    From zero-to-one launches to scaled redesigns, each one
-                    shipped with care and conviction.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
+      {/* 1, What I can do for you (shared with the home page). On /me we drop
+          the CTA into itself, use the workspace photo, and tighten the bottom
+          gap so it reads as one "about" group with the section below. */}
+      <WhatICanDo
+        showExploreCta={false}
+        portraitSrc="/images/about-workspace.png"
+        portraitRatio="1024 / 963"
+        className="pb-10"
+      />
 
       {/* 2, I design products people understand */}
-      <section className="pt-24 pb-32 border-b border-border-soft">
+      <section className="pt-6 pb-32 rule-bottom">
         <Container>
-          <div className="grid grid-cols-1 gap-x-24 gap-y-14 md:grid-cols-2 items-start">
+          <div className="grid grid-cols-1 gap-x-20 gap-y-12 md:grid-cols-[1.05fr_0.95fr]">
+            {/* Left: heading + body + quote */}
             <div>
-              <h2 className="font-display italic font-normal leading-[1.05] tracking-[-0.02em] text-ink text-[44px] md:text-[64px]">
+              <h2 className="italic font-medium leading-[1.05] tracking-h2 text-ink text-[32px] sm:text-[44px] md:text-[56px]">
                 I design products
                 <br />
                 people understand
                 <br />
                 before they notice.
               </h2>
+              <div className="mt-8 max-w-[540px] space-y-6 text-[17px] leading-[1.75] tracking-body text-muted">
+                <p>
+                  I transitioned into product design because I couldn&apos;t stop
+                  asking why and what if. Why this button. What if this moved the
+                  other way. Why does using this app feel boring?
+                </p>
+                <p>
+                  GoMyCode gave me the vocabulary. Real products gave me
+                  everything else. Since then I&apos;ve worked across startups,
+                  agencies, and product teams, on fintech, edtech, and consumer
+                  tech. What I&apos;ve learned is that the most important design
+                  decisions happen in research sessions and whiteboard
+                  conversations, not in design tools.
+                </p>
+                <p>
+                  I believe good design is invisible. It doesn&apos;t announce
+                  itself. It just works, clearly, calmly, without drama. I ask
+                  uncomfortable questions before drawing comfortable interfaces
+                  and interesting solutions.
+                </p>
+                <blockquote className="border-l-2 border-accent-purple pl-4 italic text-[16px] leading-[1.7] text-ink-65">
+                  &ldquo;Beautiful experiences should not just look good, they
+                  should work effortlessly.&rdquo;
+                </blockquote>
+              </div>
             </div>
-            <div className="space-y-6 text-[14px] leading-[1.85] tracking-body text-muted max-w-[460px]">
-              <p>
-                I transitioned into product design because I couldn&apos;t stop
-                asking why and what if. Why this button. What if this moved the
-                other way. Why does using this app feel boring?
-              </p>
-              <p>
-                GoMyCode gave me the vocabulary. Real products gave me
-                everything else. Since then I&apos;ve worked across startups,
-                agencies, and product teams, on fintech, edtech, and consumer
-                tech. What I&apos;ve learned is that the most important design
-                decisions happen in research sessions and whiteboard
-                conversations, not in design tools.
-              </p>
-              <p>
-                I believe good design is invisible. It doesn&apos;t announce
-                itself. It just works, clearly, calmly, without drama. I ask
-                uncomfortable questions before drawing comfortable interfaces
-                and interesting solutions.
-              </p>
-              <blockquote className="border-l-2 border-accent-purple pl-4 italic text-[13px] leading-[1.7] text-ink-65">
-                &ldquo;Beautiful experiences should not just look good, they
-                should work effortlessly.&rdquo;
-              </blockquote>
-            </div>
-          </div>
 
-          <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-[2fr_1fr] items-start">
-            <div className="overflow-hidden rounded-[16px]">
-              <Image
-                src="/images/ludogate-hero.png"
-                alt="LudoGate"
-                width={800}
-                height={650}
-                className="block h-auto w-full"
-                unoptimized
-              />
-            </div>
-            <div className="overflow-hidden rounded-[14px] w-[200px]">
-              <Image
-                src="/images/ludogate-logo.png"
-                alt="LudoGate logo"
-                width={420}
-                height={300}
-                className="block h-auto w-full"
-                unoptimized
-              />
+            {/* Right: three stacked LudoGate cards, spread to align the last
+                card with the closing quote. */}
+            <div className="flex flex-col items-start gap-6 md:h-full md:justify-between md:gap-0">
+              <div className="hidden md:block w-full md:w-[56%] overflow-hidden rounded-[16px]">
+                <Image
+                  src="/images/ludogate-logo.png"
+                  alt="LudoGate logo"
+                  width={420}
+                  height={300}
+                  className="block h-auto w-full"
+                  unoptimized
+                />
+              </div>
+              <div className="w-full overflow-hidden rounded-[16px]">
+                <Image
+                  src="/images/ludogate-hero.png"
+                  alt="LudoGate"
+                  width={800}
+                  height={650}
+                  className="block h-auto w-full"
+                  unoptimized
+                />
+              </div>
+              <div className="hidden md:block w-full md:w-[56%] overflow-hidden rounded-[16px]">
+                <Image
+                  src="/images/ludogate-logo.png"
+                  alt="LudoGate logo"
+                  width={420}
+                  height={300}
+                  className="block h-auto w-full"
+                  unoptimized
+                />
+              </div>
             </div>
           </div>
         </Container>
       </section>
 
       {/* 3, How I turn Chaos into Clarity */}
-      <section className="pt-24 pb-32 border-b border-border-soft">
-        <Container>
-          <h2 className="text-[44px] font-medium leading-[1.05] tracking-h2 text-ink md:text-[52px]">
-            How i turn Chaos into Clarity
-          </h2>
-
-          <div className="mt-16 grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-12">
-            {capabilities.map((c) => (
-              <div key={c.heading}>
-                <h3 className="font-mono text-[10px] uppercase leading-[16.5px] tracking-[1.76px] text-ink">
-                  {c.heading}
-                </h3>
-                <ul className="mt-5 space-y-2.5">
-                  {c.items.map((item) => (
-                    <li key={item} className="flex items-start gap-2.5">
-                      <span aria-hidden className="mt-[7px] size-1.5 shrink-0 rounded-full bg-accent-purple" />
-                      <span className="text-[13px] leading-5 tracking-button text-muted">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
+      <Capabilities />
 
       {/* 4, Things that make me Interesting */}
-      {/*
-        Composition is a single pre-composed scrapbook image so overlaps and
-        white-space between the photos read exactly like the reference.
-        The heading + body copy are live text overlaid at the position that
-        matches the wiped region inside the source (the wipe covers the
-        rasterized heading in the reference PNG).
-      */}
-      <section className="pt-24 pb-32 bg-white overflow-hidden">
-        <div className="relative mx-auto w-full max-w-[1400px] aspect-[2142/1838]">
-          {/* Heading + copy centered on the stage, sitting behind the scrapbook
-              layer so every colored border stays fully visible on top. */}
-          <div
-            className="absolute z-0 text-center left-1/2 -translate-x-1/2"
-            style={{ top: "13.5%", width: "60%" }}
-          >
-            <h2 className="text-[4vw] max-[900px]:text-[34px] font-medium leading-[1.05] tracking-h2 text-ink">
-              Things that make me
-              <br />
-              Interesting.
+      <section className="rule-top bg-white pt-24 pb-32 overflow-hidden">
+        {/* Mobile: stacked copy, then a 2-column scrapbook grid. */}
+        <div className="md:hidden">
+          <Container>
+            <SectionLabel n="03" label="About" />
+            <h2 className="mt-6 whitespace-nowrap text-[22px] font-medium leading-[1.06] tracking-h2 text-ink">
+              The human behind it all.
             </h2>
-            <p className="mx-auto mt-6 max-w-[720px] text-[1.1vw] max-[900px]:text-[14px] leading-[1.75] tracking-body text-muted">
-              When I&apos;m not designing, you&apos;ll probably find me buried
-              in a good book, chasing the perfect food or cocktail photo before
+            <p className="mt-5 text-[16px] leading-[1.7] tracking-body text-muted">
+              When I&apos;m not designing, you&apos;ll probably find me buried in
+              a good book, chasing the perfect food or cocktail photo before
+              taking the first bite, or planning my next escape, whether it&apos;s
+              across the city or across the map. I love discovering new places,
+              food, collecting little moments, and finding inspiration in
+              everyday experiences. Turns out, my curiosity is round the clock.
+            </p>
+            <div className="mt-10 grid grid-cols-2 gap-4">
+              {mobileGrid.map((p, i) => (
+                <div
+                  key={p.src}
+                  className="relative w-full overflow-hidden rounded-[16px]"
+                  style={{
+                    aspectRatio: p.ratio,
+                    transform: `rotate(${i % 2 === 0 ? -1.5 : 1.5}deg)`,
+                    ...(p.baked ? {} : { border: `3px solid ${frame[p.border!]}` }),
+                  }}
+                >
+                  <Image
+                    src={p.src}
+                    alt={p.alt}
+                    fill
+                    sizes="45vw"
+                    className="object-cover"
+                    style={p.baked ? undefined : { objectPosition: p.objectPosition }}
+                    unoptimized
+                  />
+                </div>
+              ))}
+            </div>
+          </Container>
+        </div>
+
+        {/* Desktop: photos positioned around the empty gap, aligned to the same
+            container width the other sections use. overflow-hidden lets the
+            NINE LIVES card bleed off the right edge like the design. */}
+        <Container className="hidden md:block">
+          <div className="relative aspect-[2142/1838] w-full overflow-hidden">
+            {collage.map((p) => (
+              <CollagePhoto key={p.src} photo={p} />
+            ))}
+          <div
+            className="absolute z-10"
+            style={{ left: "26.5%", top: "10%", width: "45%" }}
+          >
+            <SectionLabel n="03" label="About" />
+            <h2 className="mt-6 whitespace-nowrap text-[clamp(22px,2.6vw,36px)] font-medium leading-[1.05] tracking-h2 text-ink">
+              The human behind it all.
+            </h2>
+            <p className="mt-5 text-[clamp(14px,1.2vw,16px)] leading-[1.7] tracking-body text-muted">
+              When I&apos;m not designing, you&apos;ll probably find me buried in
+              a good book, chasing the perfect food or cocktail photo before
               taking the first bite, or planning my next escape, whether it&apos;s
               across the city or across the map. I love discovering new places,
               food, collecting little moments, and finding inspiration in
               everyday experiences. Turns out, my curiosity is round the clock.
             </p>
           </div>
-
-          {/* Scrapbook photos on top, overlap the copy where they naturally sit */}
-          <Image
-            src="/images/me-photos/scrapbook.png"
-            alt="A collage of things that make me interesting"
-            fill
-            sizes="(min-width: 1400px) 1400px, 100vw"
-            className="object-contain select-none pointer-events-none z-10"
-            unoptimized
-          />
-        </div>
+          </div>
+        </Container>
       </section>
     </>
   );

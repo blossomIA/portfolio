@@ -37,7 +37,7 @@ const socials = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border-soft">
+    <footer className="rule-top">
       <Container>
         <div className="pt-16 pb-8">
           {/* Sign-off */}

@@ -19,7 +19,7 @@ export function About() {
         <div className="grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-24">
           <div className="max-w-[463px]">
             <SectionLabel number="02" label="About" />
-            <h2 className="mt-5 text-[44px] font-medium leading-[1.1] tracking-h2 text-ink">
+            <h2 className="mt-5 text-[34px] sm:text-[44px] font-medium leading-[1.1] tracking-h2 text-ink">
               The Human behind it all.
             </h2>
             <div className="mt-10 space-y-5 text-[15px] leading-[1.78] tracking-body text-muted">

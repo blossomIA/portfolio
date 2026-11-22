@@ -1,0 +1,592 @@
+/* Fetch case study. Layouts follow the Figma frame; colour and type come from
+   the site's tokens, with the Fetch orange as the accent. The peach panels of
+   the Figma become soft accent-tinted panels here. */
+
+/* ── hero: copy left, phones right (stacks below 900px) ─────────────── */
+.fx-hero {
+  padding: clamp(28px, 4vw, 48px) 0 clamp(48px, 6vw, 88px);
+}
+.fx-hero-in {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(24px, 5vw, 80px);
+  align-items: center;
+}
+.fx-back {
+  grid-column: 1 / -1;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--faint);
+}
+.fx-back:hover {
+  color: var(--ink);
+}
+.fx-hero-copy {
+  display: grid;
+  justify-items: start;
+}
+.fx-year {
+  color: var(--faint);
+}
+.fx-word {
+  margin-top: 16px;
+  font-size: clamp(56px, 8vw, 120px);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+.fx-kicker {
+  margin-top: 14px;
+  color: var(--a-ink);
+  font-size: clamp(17px, 1.6vw, 22px);
+  font-weight: 500;
+}
+.fx-tools {
+  display: flex;
+  gap: 8px;
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.fx-tools li {
+  padding: 6px 14px;
+  border: 1px solid color-mix(in srgb, var(--a-ink) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--a-ink) 10%, transparent);
+  color: var(--a-ink);
+  font-size: 13px;
+}
+.fx-hero-art {
+  width: min(100%, 620px);
+  justify-self: end;
+  border-radius: calc(var(--radius) + 6px);
+}
+@media (max-width: 900px) {
+  .fx-hero-in {
+    grid-template-columns: 1fr;
+  }
+  .fx-hero-art {
+    justify-self: stretch;
+  }
+}
+
+/* ── shared ──────────────────────────────────────────────────────────── */
+.fx-panel {
+  padding: clamp(20px, 4vw, 48px);
+  border: 1px solid color-mix(in srgb, var(--a-ink) 18%, transparent);
+  border-radius: calc(var(--radius) + 6px);
+  background: var(--a-soft);
+}
+
+/* ── about ───────────────────────────────────────────────────────────── */
+.fx-about {
+  display: grid;
+  gap: 14px;
+  max-width: 68ch;
+  margin-bottom: 18px;
+}
+.fx-about p {
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+.fx-trio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 190px));
+  gap: clamp(14px, 3vw, 36px);
+  justify-content: center;
+  align-items: center;
+}
+.fx-trio .slot:nth-child(2) {
+  transform: translateY(-6%);
+}
+.fx-trio .slot {
+  border-radius: 22px;
+}
+
+/* ── role ────────────────────────────────────────────────────────────── */
+.fx-roles {
+  display: grid;
+  gap: 18px;
+  margin: 0;
+  list-style: none;
+}
+.fx-roles li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: clamp(16px, 1.6vw, 19px);
+  font-weight: 500;
+}
+.fx-roles svg {
+  flex: none;
+  color: var(--a-ink);
+}
+
+/* ── problem & solution ─────────────────────────────────────────────── */
+.fx-ps {
+  display: grid;
+  gap: 14px;
+}
+.fx-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px;
+  gap: clamp(18px, 4vw, 48px);
+  align-items: center;
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.fx-card-flip {
+  grid-template-columns: 200px minmax(0, 1fr);
+}
+.fx-card h3 {
+  color: var(--a-ink);
+  font-size: 20px;
+  font-weight: 600;
+}
+.fx-card p {
+  margin-top: 10px;
+  max-width: 60ch;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+@media (max-width: 640px) {
+  .fx-card,
+  .fx-card-flip {
+    grid-template-columns: 1fr;
+  }
+  .fx-illo {
+    max-width: 180px;
+  }
+  .fx-card-flip .fx-illo {
+    order: 1;
+  }
+}
+
+/* ── design process: a big core bubble with four around it ──────────── */
+.fx-bubbles {
+  position: relative;
+  max-width: 560px;
+  aspect-ratio: 560 / 380;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+.fx-bubbles li {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 1.3;
+  transform: translate(-50%, -50%);
+}
+.fx-core {
+  left: 50%;
+  top: 50%;
+  width: 40%;
+  aspect-ratio: 1;
+  background: #e8590c;
+  color: #fff;
+  font-size: clamp(16px, 2.2vw, 22px);
+  font-weight: 500;
+}
+.fx-sat {
+  width: 22%;
+  aspect-ratio: 1;
+  font-size: clamp(10px, 1.2vw, 13px);
+}
+.fx-sat-a,
+.fx-sat-d {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+.fx-sat-b,
+.fx-sat-c {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+.fx-sat-a {
+  left: 16%;
+  top: 26%;
+}
+.fx-sat-b {
+  left: 74%;
+  top: 18%;
+}
+.fx-sat-c {
+  left: 84%;
+  top: 70%;
+}
+.fx-sat-d {
+  left: 20%;
+  top: 76%;
+}
+@media (max-width: 560px) {
+  .fx-bubbles {
+    aspect-ratio: auto;
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+  }
+  .fx-bubbles li {
+    position: static;
+    transform: none;
+  }
+  .fx-core {
+    width: 60%;
+  }
+  .fx-sat {
+    width: 100%;
+    aspect-ratio: auto;
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}
+
+/* ── typography & colour ────────────────────────────────────────────── */
+
+.fx-sys-h {
+  margin: 0 0 16px;
+  padding-left: 12px;
+  border-left: 3px solid var(--a-ink);
+  font-size: 20px;
+  font-weight: 600;
+}
+.fx-sys-h:not(:first-child) {
+  margin-top: 36px;
+}
+.fx-colors {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  grid-template-rows: repeat(2, 72px);
+  gap: 10px;
+  max-width: 520px;
+}
+.fx-colors div {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.fx-colors .big {
+  grid-row: span 2;
+}
+
+/* ── key screens ────────────────────────────────────────────────────── */
+.fx-flow {
+  padding-top: 18px;
+}
+.fx-flow + .fx-flow {
+  margin-top: 26px;
+}
+.fx-flow h3 {
+  font-size: 20px;
+  font-weight: 600;
+}
+.fx-flow p {
+  margin-top: 8px;
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.fx-shots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 200px));
+  gap: clamp(12px, 3vw, 32px);
+  margin-top: 20px;
+}
+.fx-shots .slot {
+  border-radius: 14px;
+}
+
+/* ── mock ups: three over two ───────────────────────────────────────── */
+.fx-mocks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 200px));
+  gap: clamp(14px, 3vw, 36px);
+  justify-content: center;
+}
+.fx-mocks .slot {
+  border-radius: 26px;
+}
+@media (max-width: 560px) {
+  .fx-mocks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ── images ─────────────────────────────────────────────────────────── */
+.fx-trio img,
+.fx-shots img,
+.fx-mocks img,
+.fx-illo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.fx-trio img {
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+.fx-mocks img {
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.3));
+}
+
+
+
+
+.fx-hero-art {
+  height: auto;
+  border-radius: 0;
+}
+
+/* type & colour, as in the Figma: swatches with the courier standing to
+   their right on top of a full-width Poppins band */
+.fx-system {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "colour char"
+    "type type";
+  column-gap: 24px;
+}
+.fx-colour {
+  grid-area: colour;
+}
+.fx-char {
+  grid-area: char;
+  align-self: end;
+  width: clamp(110px, 13vw, 160px);
+  height: auto;
+  margin-right: clamp(0px, 4vw, 48px);
+  margin-bottom: -6px;
+}
+.fx-typo {
+  grid-area: type;
+  margin-top: 4px;
+}
+.fx-type {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 8px clamp(24px, 4vw, 56px);
+  padding: 22px clamp(18px, 3vw, 28px) 30px;
+  border-radius: 10px;
+  background: #e8590c;
+  color: #fff;
+}
+.fx-type .glyphs {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  font-size: clamp(22px, 2.4vw, 28px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.fx-box {
+  width: 64px;
+  height: auto;
+  margin-left: 18px;
+}
+.fx-type .name {
+  font-size: clamp(20px, 2vw, 24px);
+  font-weight: 500;
+}
+.fx-type .weights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 6px;
+  font-size: 14px;
+  opacity: 0.92;
+}
+.fx-type-art {
+  position: absolute;
+  right: clamp(14px, 4vw, 48px);
+  top: 50%;
+  width: clamp(76px, 9vw, 110px);
+  transform: translateY(-50%);
+  height: auto;
+}
+@media (max-width: 640px) {
+  .fx-system {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "colour"
+      "char"
+      "type";
+  }
+  .fx-char {
+    justify-self: center;
+    margin: 24px 0 0;
+  }
+  .fx-type {
+    grid-template-columns: 1fr;
+    padding-bottom: 96px;
+  }
+  .fx-type-art {
+    top: auto;
+    bottom: 14px;
+    transform: none;
+  }
+}
+
+/* key screens: each row of three spans the column, centred */
+.fx-shots {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 4vw, 48px);
+  max-width: 820px;
+  margin-inline: auto;
+}
+
+/* sizing pass: bigger swatches and band; the courier no longer pushes the
+   typography down (his feet overlap the empty right side of its heading row) */
+.fx-system {
+  row-gap: 0;
+  column-gap: clamp(20px, 4vw, 56px);
+}
+.fx-colors {
+  grid-template-columns: 1.35fr 1fr 1fr;
+  grid-template-rows: repeat(2, clamp(76px, 8vw, 112px));
+  gap: 12px;
+  max-width: 720px;
+}
+.fx-colors div {
+  font-size: 14px;
+}
+.fx-char {
+  width: clamp(120px, 12vw, 170px);
+  margin: 0 clamp(0px, 4vw, 56px) -56px 0;
+}
+.fx-typo {
+  margin-top: 28px;
+}
+.fx-type {
+  padding: clamp(24px, 3vw, 36px) clamp(20px, 3vw, 40px) clamp(32px, 3.4vw, 44px);
+  gap: 10px clamp(28px, 5vw, 72px);
+}
+.fx-type .glyphs {
+  font-size: clamp(26px, 3vw, 40px);
+  gap: 10px;
+}
+.fx-box {
+  width: clamp(60px, 6vw, 88px);
+}
+.fx-type .name {
+  font-size: clamp(22px, 2.4vw, 32px);
+}
+.fx-type .weights {
+  gap: 6px 22px;
+  margin-top: 8px;
+  font-size: clamp(14px, 1.2vw, 17px);
+}
+.fx-type-art {
+  width: clamp(90px, 11vw, 150px);
+}
+@media (max-width: 640px) {
+  .fx-char {
+    margin: 24px 0 0;
+  }
+}
+
+/* ── phones (kept last so it wins over the sizing pass above) ───────── */
+@media (max-width: 640px) {
+  .fx-type {
+    padding-bottom: 110px;
+  }
+  .fx-type-art {
+    top: auto;
+    bottom: 16px;
+    transform: none;
+  }
+  .fx-illo {
+    justify-self: center;
+    max-width: 200px;
+  }
+  /* key screens: a swipeable strip of phones big enough to read */
+  .fx-shots {
+    display: flex;
+    gap: 14px;
+    max-width: none;
+    margin-inline: 0;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .fx-shots::-webkit-scrollbar {
+    display: none;
+  }
+  .fx-shots img {
+    flex: none;
+    width: 72%;
+    scroll-snap-align: center;
+  }
+}
+
+/* problem & solution mirror each other: text at one edge, illustration at
+   the other, with the open space between them */
+@media (min-width: 641px) {
+  .fx-card {
+    grid-template-columns: minmax(0, 1fr) clamp(140px, 16vw, 200px);
+  }
+  .fx-card-flip {
+    grid-template-columns: clamp(160px, 18vw, 230px) minmax(0, 1fr);
+  }
+  .fx-card > div {
+    max-width: 62ch;
+  }
+  .fx-card-flip > div {
+    justify-self: end;
+  }
+}
+
+/* design process: the bubble cluster fills its panel */
+@media (min-width: 561px) {
+  .fx-bubbles {
+    max-width: 860px;
+    aspect-ratio: 860 / 520;
+  }
+  .fx-core {
+    width: 38%;
+    font-size: clamp(18px, 2.4vw, 32px);
+  }
+  .fx-sat {
+    width: 21%;
+    padding: 14px;
+    font-size: clamp(12px, 1.3vw, 17px);
+  }
+}
+
+/* about: the two paragraphs share the full column width, like the panel below */
+.fx-about {
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: clamp(20px, 4vw, 56px);
+  align-items: start;
+  max-width: none;
+  margin-bottom: 28px;
+}
+.fx-about p + p {
+  padding-left: clamp(16px, 2vw, 28px);
+  border-left: 2px solid var(--a-ink);
+  color: var(--ink);
+}
+@media (max-width: 760px) {
+  .fx-about {
+    grid-template-columns: 1fr;
+  }
+}

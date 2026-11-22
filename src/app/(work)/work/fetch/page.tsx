@@ -1,28 +1,21 @@
-import Link from "next/link";
-import Image from "next/image";
 import type { Metadata } from "next";
-import { Container } from "@/components/Container";
-import { CaseStudyNav } from "@/components/CaseStudyNav";
-import { Reveal } from "@/components/Reveal";
-import { Sparkles, ArrowUpRight, ArrowLeft } from "lucide-react";
-
-const FETCH_ORANGE = "#E8590C";
-const FETCH_PEACH = "#FCE4CE";
+import Image from "next/image";
+import Link from "next/link";
+import { Poppins } from "next/font/google";
+import { ChevronLeft, MousePointerClick } from "lucide-react";
+import { CaseStudy, Chapter } from "@/components/case-study/CaseStudy";
+import "@/styles/cs-fetch.css";
 
 export const metadata: Metadata = {
-  title: "Fetch, Amarachi Blossom",
+  title: "Fetch",
   description:
     "A smarter way to deliver and negotiate, a case study of a user-driven delivery platform where customers and agents negotiate prices in real time.",
 };
 
-const NAV_SECTIONS = [
-  { id: "about", label: "About" },
-  { id: "problem", label: "Problem" },
-  { id: "process", label: "Process" },
-  { id: "system", label: "System" },
-  { id: "screens", label: "Screens" },
-  { id: "mockups", label: "Mock Ups" },
-];
+// The app's typeface, shown only in the typography specimen.
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
+
+const img = (f: string) => `/images/case-studies/fetch/${f}.webp`;
 
 const RESPONSIBILITIES = [
   "Product Design (UI/UX)",
@@ -30,439 +23,251 @@ const RESPONSIBILITIES = [
   "Wireframing, Prototyping & High-Fidelity Design",
 ];
 
-const PROCESS_STEPS = [
-  { label: "Wireframing & UX Strategy", bg: "bg-[#b7a89b]", size: 168, color: "text-white" },
-  { label: "Research & Insights", bg: "bg-[#E8590C]", size: 240, color: "text-white", featured: true },
-  { label: "UI Design & Visual Direction", bg: "bg-white", size: 158, color: "text-ink" },
-  { label: "Prototyping & User Testing", bg: "bg-[#b7a89b]", size: 158, color: "text-white" },
-  { label: "Ideation & Sketching", bg: "bg-white", size: 168, color: "text-ink" },
+/** the design-process bubbles: Research & Insights in the middle, the other stages around it */
+const STAGES = [
+  { label: "Wireframing & UX Strategy", pos: "a" },
+  { label: "UI Design & Visual Direction", pos: "b" },
+  { label: "Ideation & Sketching", pos: "c" },
+  { label: "Prototyping & User Testing", pos: "d" },
 ];
 
-const PALETTE = [
-  { hex: "#E8590C", label: "#E8590C", bg: "bg-[#E8590C]", text: "text-white", big: true },
-  { hex: "#FFFFFF", label: "#FFFFFF", bg: "bg-white border border-black/10", text: "text-ink" },
-  { hex: "#8F8F8F", label: "#8F8F8F", bg: "bg-[#8F8F8F]", text: "text-white" },
-  { hex: "#4CAF50", label: "#4CAF50", bg: "bg-[#4CAF50]", text: "text-white" },
-  { hex: "#1E1E1E", label: "#1E1E1E", bg: "bg-[#1E1E1E]", text: "text-white" },
+const SCREENS: { title?: string; body: string; shots: [file: string, alt: string][] }[] = [
+  {
+    title: "Request a Delivery",
+    body: "Users view the delivery options given and select their preferred service.",
+    shots: [["send-1", "Send item: map and vehicle options"], ["send-2", "Send item: service menu open"], ["send-3", "Send item: Receive item selected"]],
+  },
+  {
+    body: "Users select their preferred vehicle type, delivery details and set their initial price.",
+    shots: [["receive-1", "Receive item: motorbike selected"], ["receive-2", "Set delivery route with keyboard"], ["receive-3", "Offer your fee"]],
+  },
+  {
+    title: "Real-Time Negotiation & Live Tracking",
+    body: "Agents bid on deliveries and users review offers. Counter-offers enable dynamic pricing discussions. Live tracking builds trust and ensures a smooth and reliable experience.",
+    shots: [["negotiate-1", "Offer your fee: payment method"], ["negotiate-2", "Delivery: incoming offers from agents"], ["negotiate-3", "Tracking delivery: live map and progress"]],
+  },
+];
+
+const COLORS = [
+  { hex: "#E8590C", ink: "#FFFFFF" },
+  { hex: "#FFFFFF", ink: "#0A0A0A" },
+  { hex: "#8F8F8F", ink: "#0A0A0A" },
+  { hex: "#4CAF50", ink: "#0A0A0A" },
+  { hex: "#1E1E1E", ink: "#FFFFFF" },
 ];
 
 export default function FetchPage() {
   return (
-    <>
-      <CaseStudyNav brand="Fetch, case study" sections={NAV_SECTIONS} />
-
-      {/* HERO */}
-      <section id="about" className="relative">
-        <Image
-          src="/images/case-studies/fetch/hero.png"
-          alt="Fetch, A Smarter Way to Deliver & Negotiate"
-          width={2880}
-          height={1750}
-          className="block h-auto w-full"
-          priority
-          unoptimized
-        />
-      </section>
-
-      {/* Description */}
-      <section className="bg-[#f6f9fb]">
-        <Container>
-          <div className="py-20 max-w-[900px] mx-auto">
-            <p className="text-[17px] leading-[1.85] text-ink">
-              Fetch is a dynamic, user-driven delivery platform that allows
-              customers and delivery agents to negotiate prices in real time
-              designed specifically for courier and delivery services. Whether
-              you need to send a package across town or deliver an urgent
-              document, Fetch lets you set your price and choose from competing
-              offers from nearby agents.
-            </p>
-            <p className="mt-6 text-[17px] leading-[1.85] text-ink">
-              By giving users and agents control over pricing, Fetch creates a
-              fair, transparent, and cost-effective delivery experience for
-              both sides.
-            </p>
+    <CaseStudy
+      slug="fetch"
+      aInk="#FF8A45"
+      aSoft="#26190F"
+      chapters={[
+        { id: "about", label: "About" },
+        { id: "role", label: "Role" },
+        { id: "problem", label: "Problem" },
+        { id: "process", label: "Process" },
+        { id: "system", label: "Type & colour" },
+        { id: "screens", label: "Screens" },
+        { id: "mockups", label: "Mock ups" },
+      ]}
+      hero={
+        <header className="fx-hero">
+          <div className="wrap fx-hero-in">
+            <Link className="fx-back lab" href="/projects">
+              <ChevronLeft size={14} aria-hidden /> All projects
+            </Link>
+            <div className="fx-hero-copy">
+              <span className="lab fx-year">2025 · Logistics</span>
+              <h1 className="fx-word">Fetch</h1>
+              <p className="fx-kicker">A Smarter Way to Deliver &amp; Negotiate</p>
+              <ul className="fx-tools" aria-label="Tools">
+                <li>Illustrator</li>
+                <li>Figma</li>
+              </ul>
+            </div>
+            <Image
+              className="fx-hero-art"
+              src={img("hero")}
+              alt="Fetch splash and onboarding screens on two phones"
+              width={2000}
+              height={1422}
+              priority
+              sizes="(min-width: 900px) 620px, 92vw"
+            />
           </div>
-        </Container>
-      </section>
-
-      {/* Role & Responsibilities */}
-      <section className="bg-white">
-        <Container>
-          <div className="py-16">
-            <h2 className="text-center font-display text-[22px] font-medium text-ink">
-              Role &amp; Responsibilities
-            </h2>
-          </div>
-        </Container>
-        <div className={`bg-[${FETCH_PEACH}]`} style={{ background: FETCH_PEACH }}>
-          <Container>
-            <ul className="py-16 space-y-8 max-w-[860px] mx-auto">
-              {RESPONSIBILITIES.map((r) => (
-                <li key={r} className="flex items-center gap-6">
-                  <Sparkles
-                    className="size-8 shrink-0"
-                    strokeWidth={1.8}
-                    style={{ color: FETCH_ORANGE }}
-                  />
-                  <span className="text-[20px] leading-[1.4] text-ink">{r}</span>
-                </li>
-              ))}
-            </ul>
-          </Container>
+        </header>
+      }
+    >
+      <Chapter id="about" no="01" title="About">
+        <div className="fx-about">
+          <p>
+            Fetch is a dynamic, user-driven delivery platform that allows customers and delivery agents to negotiate
+            prices in real time, designed specifically for courier and delivery services. Whether you need to send a
+            package across town or deliver an urgent document, Fetch lets you set your price and choose from competing
+            offers from nearby agents.
+          </p>
+          <p>
+            By giving users and agents control over pricing, Fetch creates a fair, transparent, and cost-effective
+            delivery experience for both sides.
+          </p>
         </div>
-      </section>
+        <div className="fx-panel fx-trio">
+          <Image
+            src={img("about-splash")}
+            alt="Splash: Fetch, on time every time"
+            width={1031}
+            height={1948}
+            sizes="(min-width: 700px) 190px, 30vw"
+          />
+          <Image
+            src={img("about-onboarding")}
+            alt="Onboarding: Ready for your first order?"
+            width={936}
+            height={2000}
+            sizes="(min-width: 700px) 190px, 30vw"
+          />
+          <Image
+            src={img("about-tracking")}
+            alt="Tracking delivery: live map with the driver's details"
+            width={1031}
+            height={1944}
+            sizes="(min-width: 700px) 190px, 30vw"
+          />
+        </div>
+      </Chapter>
 
-      {/* Problem Statement */}
-      <section id="problem" className="bg-white pt-16">
-        <Container>
-          <div className="mx-auto max-w-[900px] rounded-[16px] border border-black/10 bg-white p-10">
-            <h3 className="text-[24px] font-medium" style={{ color: FETCH_ORANGE }}>
-              Problem Statement
-            </h3>
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8 items-center">
-              <p className="text-[15px] leading-[1.75] text-ink/80">
-                Traditional delivery platforms use fixed pricing models,
-                resulting in high costs from surge pricing, limited control
-                over payments for users and agents, and a lack of transparency
-                in the delivery process.
+      <Chapter id="role" no="02" title="Role & responsibilities">
+        <ul className="fx-panel fx-roles">
+          {RESPONSIBILITIES.map((r) => (
+            <li key={r}>
+              <MousePointerClick size={20} aria-hidden />
+              {r}
+            </li>
+          ))}
+        </ul>
+      </Chapter>
+
+      <Chapter id="problem" no="03" title="Problem & solution">
+        <div className="fx-ps">
+          <div className="fx-card">
+            <div>
+              <h3>Problem Statement</h3>
+              <p>
+                Traditional delivery platforms use fixed pricing models, resulting in high costs from surge pricing,
+                limited control over payments for users and agents, and a lack of transparency in the delivery process.
               </p>
-              <div
-                aria-hidden
-                className="flex items-end gap-2 justify-end"
-                style={{ fontFamily: "var(--font-sans)" }}
-              >
-                <span className="text-[80px] font-black leading-none text-[#4CAF50]">?</span>
-                <span className="text-[110px] font-black leading-none" style={{ color: FETCH_ORANGE }}>?</span>
-                <span className="text-[70px] font-black leading-none text-[#E8A672]">?</span>
-              </div>
+            </div>
+            <Image className="fx-illo" src={img("questions")} alt="" width={854} height={602} sizes="160px" />
+          </div>
+          <div className="fx-card fx-card-flip">
+            <Image
+              className="fx-illo"
+              src={img("vehicles")}
+              alt=""
+              width={940}
+              height={660}
+              sizes="200px"
+            />
+            <div>
+              <h3>Fetch&apos;s Solution</h3>
+              <p>
+                Fetch offers a flexible price negotiation system, empowering users to find the best delivery rates while
+                allowing agents to choose the most profitable jobs. It ensures negotiable terms and transparency in the
+                delivery process.
+              </p>
             </div>
           </div>
-        </Container>
-      </section>
+        </div>
+      </Chapter>
 
-      {/* Fetch's Solution */}
-      <section className="bg-white pt-8 pb-16">
-        <Container>
-          <div className="mx-auto max-w-[900px] rounded-[16px] border border-black/10 bg-white p-10">
-            <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-center">
-              <div
-                aria-hidden
-                className="flex items-end justify-center h-24 w-24 md:h-32 md:w-32"
-              >
-                {/* small courier / package illustration */}
-                <div className="relative">
-                  <div className="size-16 rounded-full bg-[#E8590C]/20" />
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 text-3xl">🛵</div>
+      <Chapter
+        id="process"
+        no="04"
+        title="Design process"
+        intro="The design process for Fetch focused on creating a seamless bargain-based delivery experience with flexible pricing and transparency. An intuitive bidding system, clean UI, and user-friendly interactions ensure smooth negotiations, easy navigation, and reliable deliveries."
+      >
+        <div className="fx-panel">
+          <ol className="fx-bubbles" aria-label="Design process stages">
+            <li className="fx-core">Research &amp; Insights</li>
+            {STAGES.map((s) => (
+              <li key={s.label} className={`fx-sat fx-sat-${s.pos}`}>
+                {s.label}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </Chapter>
+
+      <Chapter id="system" no="05" title="Typography and colour">
+        <div className="fx-panel fx-system">
+          <div className="fx-colour">
+            <h3 className="fx-sys-h">Colour</h3>
+            <div className="fx-colors">
+              {COLORS.map((c, i) => (
+                <div key={c.hex} className={i === 0 ? "big" : undefined} style={{ background: c.hex, color: c.ink }}>
+                  {c.hex}
                 </div>
+              ))}
+            </div>
+          </div>
+          <Image
+            className="fx-char"
+            src={img("courier")}
+            alt="Fetch courier character holding boxes"
+            width={893}
+            height={1892}
+            sizes="160px"
+          />
+          <div className="fx-typo">
+            <h3 className="fx-sys-h">Typography</h3>
+            <div className={`fx-type ${poppins.className}`}>
+              <div className="glyphs" aria-hidden>
+                <span>Aa Bb Cc</span>
+                <Image className="fx-box" src={img("box")} alt="" width={290} height={168} sizes="64px" />
               </div>
               <div>
-                <h3 className="text-[24px] font-medium" style={{ color: FETCH_ORANGE }}>
-                  Fetch&apos;s Solution
-                </h3>
-                <p className="mt-6 text-[15px] leading-[1.75] text-ink/80">
-                  Fetch offers a flexible price negotiation system, empowering
-                  users to find the best delivery rates while allowing agents
-                  to choose the most profitable jobs. It ensures negotiable
-                  terms and transparency in the delivery process.
+                <p className="name">Poppins</p>
+                <p className="weights">
+                  <span style={{ fontWeight: 400 }}>Regular</span>
+                  <span style={{ fontWeight: 500 }}>Medium</span>
+                  <span style={{ fontWeight: 600 }}>Semi-bold</span>
+                  <span style={{ fontWeight: 700 }}>Bold</span>
                 </p>
               </div>
+              <Image className="fx-type-art" src={img("vehicles-phone")} alt="" width={430} height={304} sizes="110px" />
             </div>
           </div>
-        </Container>
-      </section>
-
-      {/* Design Process */}
-      <section id="process" className="bg-white">
-        <Container>
-          <div className="py-12 text-center">
-            <h2 className="font-display text-[22px] font-medium text-ink">
-              Design Process
-            </h2>
-          </div>
-        </Container>
-        <div style={{ background: FETCH_PEACH }}>
-          <Container>
-            <div className="py-16 mx-auto max-w-[1000px]">
-              <p className="text-[16px] leading-[1.75] text-ink text-center max-w-[880px] mx-auto">
-                The design process for Fetch focused on creating a seamless
-                bargain-based delivery experience with flexible pricing and
-                transparency. An intuitive bidding system, clean UI, and
-                user-friendly interactions ensure smooth negotiations, easy
-                navigation, and reliable deliveries.
-              </p>
-
-              <div className="relative mt-16 flex items-center justify-center min-h-[440px]">
-                {/* Circle diagram */}
-                {/* Central Research & Insights (big orange) */}
-                <div className="relative flex items-center justify-center">
-                  <div
-                    className="flex items-center justify-center rounded-full text-center text-white font-medium"
-                    style={{ background: FETCH_ORANGE, width: 260, height: 260 }}
-                  >
-                    <span className="text-[22px] leading-[1.15]">
-                      Research
-                      <br />&amp;
-                      <br />Insights
-                    </span>
-                  </div>
-
-                  {/* Wireframing top-left */}
-                  <div
-                    className="absolute -left-[220px] -top-[10px] flex items-center justify-center rounded-full bg-[#b7a89b] text-white text-center text-[13px] leading-[1.15] p-6"
-                    style={{ width: 160, height: 160 }}
-                  >
-                    Wireframing
-                    <br />&amp;
-                    <br />UX Strategy
-                  </div>
-                  {/* UI Design top-right */}
-                  <div
-                    className="absolute -right-[220px] -top-[10px] flex items-center justify-center rounded-full bg-white border border-black/10 text-ink text-center text-[13px] leading-[1.15] p-6"
-                    style={{ width: 160, height: 160 }}
-                  >
-                    UI Design
-                    <br />&amp;
-                    <br />Visual Direction
-                  </div>
-                  {/* Prototyping bottom-left */}
-                  <div
-                    className="absolute -left-[210px] top-[190px] flex items-center justify-center rounded-full bg-[#b7a89b] text-white text-center text-[13px] leading-[1.15] p-6"
-                    style={{ width: 150, height: 150 }}
-                  >
-                    Prototyping
-                    <br />&amp;
-                    <br />User Testing
-                  </div>
-                  {/* Ideation bottom-right */}
-                  <div
-                    className="absolute -right-[210px] top-[190px] flex items-center justify-center rounded-full bg-white border border-black/10 text-ink text-center text-[13px] leading-[1.15] p-6"
-                    style={{ width: 150, height: 150 }}
-                  >
-                    Ideation
-                    <br />&amp;
-                    <br />Sketching
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Container>
         </div>
-      </section>
+      </Chapter>
 
-      {/* Typography & Colour */}
-      <section id="system" className="bg-white">
-        <Container>
-          <div className="py-12 text-center">
-            <h2 className="font-display text-[22px] font-medium text-ink">
-              Typography and Colour
-            </h2>
-          </div>
-        </Container>
-
-        <div style={{ background: FETCH_PEACH }}>
-          <Container>
-            <div className="py-20">
-              {/* Colour */}
-              <div className="flex items-center gap-4">
-                <span className="block h-8 w-1" style={{ background: FETCH_ORANGE }} />
-                <h3 className="text-[24px] font-medium text-ink">Colour</h3>
-              </div>
-
-              <div className="mt-10 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-10 items-center">
-                {/* Palette */}
-                <div>
-                  <div className="grid grid-cols-3 gap-4 max-w-[560px]">
-                    {/* Big orange spans row 1 col 1 & row 2 col 1 */}
-                    <div
-                      className={`${PALETTE[0].bg} ${PALETTE[0].text} col-span-1 row-span-2 rounded-md p-6 flex items-center justify-center text-[16px] font-medium`}
-                      style={{ minHeight: 250 }}
-                    >
-                      {PALETTE[0].label}
-                    </div>
-                    {PALETTE.slice(1).map((c) => (
-                      <div
-                        key={c.label}
-                        className={`${c.bg} ${c.text} rounded-md p-6 flex items-center justify-center text-[15px] font-medium`}
-                        style={{ minHeight: 115 }}
-                      >
-                        {c.label}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Character illustration placeholder */}
-                <div className="flex items-end justify-center">
-                  <div
-                    className="relative flex items-end justify-center overflow-hidden"
-                    style={{ height: 280 }}
-                  >
-                    <Image
-                      src="/images/case-studies/fetch/character.png"
-                      alt="Fetch courier character"
-                      width={1000}
-                      height={1800}
-                      className="h-full w-auto object-contain"
-                      unoptimized
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Typography */}
-              <div className="mt-16 flex items-center gap-4">
-                <span className="block h-8 w-1" style={{ background: FETCH_ORANGE }} />
-                <h3 className="text-[24px] font-medium text-ink">Typography</h3>
-              </div>
-
-              <div
-                className="mt-10 rounded-md p-8 flex flex-col md:flex-row items-center justify-between gap-6"
-                style={{ background: FETCH_ORANGE }}
-              >
-                <div className="flex items-baseline gap-8 text-white">
-                  <span className="text-[52px] font-bold leading-none">Aa</span>
-                  <span className="text-[52px] font-medium leading-none">Bb</span>
-                  <span className="text-[52px] leading-none">Cc</span>
-                </div>
-                <div className="text-white text-center md:text-right">
-                  <p className="text-[36px] font-bold leading-none">Poppins</p>
-                  <div className="mt-4 flex flex-wrap justify-center md:justify-end items-baseline gap-4 text-[15px]">
-                    <span>Regular</span>
-                    <span>Medium</span>
-                    <span className="font-semibold">Semi-bold</span>
-                    <span className="font-bold">Bold</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Container>
-        </div>
-      </section>
-
-      {/* Key Screens & Features */}
-      <section id="screens" className="bg-white">
-        <Container>
-          <div className="py-16 text-center">
-            <h2 className="font-display text-[22px] font-medium text-ink">
-              Key Screens &amp; Features
-            </h2>
-          </div>
-
-          {/* Row 1: Request a Delivery */}
-          <div className="pb-16">
-            <h3 className="text-[28px] font-semibold text-ink">Request a Delivery</h3>
-            <p className="mt-3 text-[15px] leading-[1.55] text-ink/70">
-              Users views delivery options given and selects their preferred
-              service
-            </p>
-            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
-              {["rq-1", "rq-2", "rq-3"].map((k) => (
-                <Reveal key={k}>
-                  <Image
-                    src={`/images/case-studies/fetch/${k}.png`}
-                    alt="Fetch, request a delivery"
-                    width={500}
-                    height={1630}
-                    className="block h-auto w-full rounded-lg"
-                    unoptimized
-                  />
-                </Reveal>
+      <Chapter id="screens" no="06" title="Key screens & features">
+        {SCREENS.map((s) => (
+          <div className="fx-flow" key={s.body}>
+            {s.title && <h3>{s.title}</h3>}
+            <p>{s.body}</p>
+            <div className="fx-shots">
+              {s.shots.map(([f, alt]) => (
+                <Image key={f} src={img(f)} alt={alt} width={947} height={2000} sizes="(min-width: 700px) 200px, 30vw" />
               ))}
             </div>
           </div>
+        ))}
+      </Chapter>
 
-          {/* Row 2: Vehicle type */}
-          <div className="pb-16">
-            <p className="text-[16px] leading-[1.55] text-ink/80">
-              Users select preferred vehicle type, delivery details and set
-              their initial price
-            </p>
-            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
-              {["vh-1", "vh-2", "vh-3"].map((k) => (
-                <Reveal key={k}>
-                  <Image
-                    src={`/images/case-studies/fetch/${k}.png`}
-                    alt="Fetch, vehicle type & details"
-                    width={500}
-                    height={1400}
-                    className="block h-auto w-full rounded-lg"
-                    unoptimized
-                  />
-                </Reveal>
-              ))}
-            </div>
-          </div>
-
-          {/* Row 3: Negotiation & Live Tracking */}
-          <div className="pb-16">
-            <h3 className="text-[28px] font-semibold text-ink">
-              Real-Time Negotiation &amp; Live Tracking
-            </h3>
-            <p className="mt-3 text-[15px] leading-[1.55] text-ink/70">
-              Agents bid on deliveries, and users review offers, Counter-offers
-              enable dynamic pricing discussions. Live tracking builds trust and
-              ensures a smooth and reliable experience.
-            </p>
-            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
-              {["ng-1", "ng-2", "ng-3"].map((k) => (
-                <Reveal key={k}>
-                  <Image
-                    src={`/images/case-studies/fetch/${k}.png`}
-                    alt="Fetch, negotiation and tracking"
-                    width={500}
-                    height={1150}
-                    className="block h-auto w-full rounded-lg"
-                    unoptimized
-                  />
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* Mock Ups */}
-      <section id="mockups" className="bg-white">
-        <Container>
-          <div className="py-12 text-center">
-            <h2 className="font-display text-[22px] font-medium text-ink">
-              Mock Ups
-            </h2>
-          </div>
-        </Container>
-        <div style={{ background: FETCH_PEACH }} className="pt-16 pb-24">
-          <Container>
-            <Image
-              src="/images/case-studies/fetch/mockups.png"
-              alt="Fetch mock ups, splash, order and tracking screens"
-              width={2740}
-              height={2900}
-              className="block h-auto w-full"
-              unoptimized
-            />
-          </Container>
+      <Chapter id="mockups" no="07" title="Mock ups">
+        <div className="fx-panel fx-mocks">
+          {[
+            ["mock-splash", "Splash: Fetch, on time every time"],
+            ["mock-onboarding", "Onboarding: Ready for your first order?"],
+            ["mock-send", "Send item: map and vehicle options"],
+            ["mock-offers", "Delivery: incoming offers"],
+            ["mock-tracking", "Tracking delivery"],
+          ].map(([f, alt]) => (
+            <Image key={f} src={img(f)} alt={alt} width={983} height={2000} sizes="(min-width: 700px) 200px, 45vw" />
+          ))}
         </div>
-      </section>
-
-      {/* Closing */}
-      <section className="bg-white pt-16 pb-24 text-center">
-        <Container>
-          <Link
-            href="/#work"
-            className="inline-flex items-center gap-2 rounded-full border border-black/15 px-6 py-3 text-[14px] font-medium text-ink transition-colors hover:bg-black/5"
-          >
-            <ArrowLeft className="size-4" />
-            Back Home
-          </Link>
-          <Link
-            href="/work/baby-haven"
-            className="ml-4 inline-flex items-center gap-2 rounded-full px-6 py-3 text-[14px] font-medium text-white transition-opacity hover:opacity-90"
-            style={{ background: FETCH_ORANGE }}
-          >
-            View next project <ArrowUpRight className="size-4" />
-          </Link>
-        </Container>
-      </section>
-    </>
+      </Chapter>
+    </CaseStudy>
   );
 }

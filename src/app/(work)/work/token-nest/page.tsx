@@ -1,1287 +1,625 @@
-"use client";
-
-import { useState } from "react";
+import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
+import { Montserrat_Alternates } from "next/font/google";
 import {
-  ArrowRight,
-  TrendingUp,
-  Star,
-  Clock,
+  ArrowLeft,
   Award,
-  AlertCircle,
-  ShieldOff,
-  EyeOff,
-  Smartphone,
-  Compass,
-  Lightbulb,
-  Sparkles,
-  Layers,
   BarChart3,
+  Bell,
+  CircleAlert,
+  CircleCheck,
+  CircleHelp,
+  Clock,
+  Compass,
+  Eye,
+  Filter,
+  History,
+  Home,
+  Info,
+  Lightbulb,
+  Lock,
+  Mic,
+  PenTool,
   RefreshCw,
-  Check,
+  ScanLine,
+  Search,
+  Settings,
+  Shield,
+  ShieldCheck,
+  Smartphone,
+  Star,
+  Target,
+  Ticket,
+  Trash2,
+  TrendingUp,
+  Triangle,
+  Upload,
+  User,
+  Wallet,
+  X,
+  ChevronDown,
+  ChevronLeft,
+  Zap,
+  ArrowRight,
+  FlaskConical,
 } from "lucide-react";
+import { CaseStudy, Chapter, Tree, Swatches } from "@/components/case-study/CaseStudy";
+import { Donut, Pie, type Slice } from "@/components/case-study/Charts";
+import { Slot } from "@/components/case-study/Slot";
+import { ModeSwitch } from "./_mode";
+import { Flow } from "./_flow";
+import "@/styles/cs-token-nest.css";
 
-// ---------- Palette (Token Nest brand) ----------
-const BRAND_GREEN = "#5F9A61";
-const DARK_BG = "#0F1F1B";
-const SURFACE = "#1C2B2E";
-const MINT = "#A8D5A2";
-const TEXT_2 = "#B3B3B3";
-const SUCCESS = "#66BB6A";
-const ERROR = "#E57373";
-const CHART_YELLOW = "#D9F03B";
-const CHART_CYAN = "#22D3EE";
-const CHART_PINK = "#F472B6";
-const CHART_DARKGREEN = "#2F5F44";
+export const metadata: Metadata = {
+  title: "Token Nest",
+  description:
+    "A UX/UI case study on designing a secure, intuitive cryptocurrency portfolio management app, from research to high-fidelity screens.",
+};
 
-// ---------- Sub-nav pills ----------
-const SUB_NAV = [
-  { id: "overview", label: "Overview" },
-  { id: "research", label: "Research" },
-  { id: "process", label: "Process" },
-  { id: "screens", label: "Screens" },
-  { id: "contact", label: "Contact" },
+/** a phone screenshot: file, alt text, and its pixel size (defaults to 85×172) */
+type Shot = [file: string, alt: string, width?: number, height?: number];
+
+const img = (f: string) => `/images/case-studies/token-nest/${f}`;
+
+// The app's display face, shown only in the design-system typography specimen.
+const alt = Montserrat_Alternates({ subsets: ["latin"], weight: ["600", "700"], display: "swap" });
+
+/* survey palette, as in the Figma: dark green, lime, sky, magenta */
+const P = ["#2f4a33", "#c6ea5b", "#4fc3f7", "#c2389e"];
+const pie = (pairs: [string, number][]): Slice[] => pairs.map(([label, value], i) => ({ label, value, color: P[i] }));
+
+const polls: { q: string; a: Slice[] }[] = [
+  { q: "How often do you use crypto trading apps?", a: pie([["A few times a week", 35], ["Once a day", 25], ["Several times a day", 25], ["Rarely", 15]]) },
+  { q: "What are the main reasons for using cryptocurrency trading apps?", a: pie([["To buy and sell cryptocurrencies", 34], ["To explore new investment opportunities", 26], ["To track my portfolio", 22], ["To monitor market trends", 18]]) },
+  { q: "What features do you like in crypto apps?", a: pie([["Easy-to-use app", 32], ["Secure wallet storage", 28], ["Variety of cryptocurrencies supported", 22], ["Real-time data", 18]]) },
+  { q: "What challenges do you face with crypto apps?", a: pie([["Complex user interface", 34], ["Concerns about security", 28], ["High transaction fees", 22], ["Limited customer support", 16]]) },
+  { q: "How easy is it to use your current crypto app?", a: pie([["Easy", 45], ["Difficult", 35], ["Neutral", 20]]) },
+  { q: "How can crypto app interfaces improve?", a: pie([["Simplify navigation", 32], ["Provide clear instructions and guides", 26], ["Lessen transaction fees", 22], ["Customize settings", 20]]) },
+  { q: "What makes you trust a crypto app?", a: pie([["Strong reputation", 34], ["Positive user reviews", 26], ["Transparent fees", 22], ["Popularity", 18]]) },
+  { q: "Are you satisfied with your current crypto app customer support?", a: pie([["Satisfied", 40], ["Dissatisfied", 35], ["Neutral", 25]]) },
+  { q: "Would you recommend your current crypto app?", a: pie([["Probably", 30], ["Not sure", 25], ["Definitely", 25], ["No", 20]]) },
 ];
 
-// ---------- Pie chart util ----------
-type PieSlice = { label: string; value: number; color: string };
-function Pie({ slices, size = 150 }: { slices: PieSlice[]; size?: number }) {
-  const r = size / 2;
-  const total = slices.reduce((s, x) => s + x.value, 0);
-  // Round coords to 3 decimals so SSR and client render byte-identical paths
-  // (Math.cos/sin can differ by 1 ULP across JS engines, tripping hydration).
-  const fmt = (n: number) => n.toFixed(3);
-  let start = -Math.PI / 2;
-  const paths = slices.map((s) => {
-    const angle = (s.value / total) * Math.PI * 2;
-    const end = start + angle;
-    const largeArc = angle > Math.PI ? 1 : 0;
-    const x1 = r + r * Math.cos(start);
-    const y1 = r + r * Math.sin(start);
-    const x2 = r + r * Math.cos(end);
-    const y2 = r + r * Math.sin(end);
-    const d = `M ${r} ${r} L ${fmt(x1)} ${fmt(y1)} A ${r} ${r} 0 ${largeArc} 1 ${fmt(x2)} ${fmt(y2)} Z`;
-    start = end;
-    return { d, color: s.color };
-  });
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {paths.map((p, i) => (
-        <path key={i} d={p.d} fill={p.color} />
-      ))}
-    </svg>
-  );
-}
+const iconography = [
+  ArrowLeft, Star, Home, Eye, Triangle, Filter, Wallet, ScanLine, History, Upload, Lock, Search,
+  Trash2, Settings, Bell, CircleCheck, Mic, Ticket, X, User, CircleHelp, ChevronDown, Info, BarChart3,
+];
 
-function ChartCard({
-  question,
-  slices,
-}: {
-  question: string;
-  slices: PieSlice[];
-}) {
+export default function TokenNest() {
   return (
-    <div>
-      <p className="mb-4 text-[13px] leading-[1.5] text-white">
-        <span className="text-[#66BB6A]">•</span> {question}
-      </p>
-      <div className="flex items-center gap-6">
-        <Pie slices={slices} size={130} />
-        <ul className="space-y-1.5 text-[11px]">
-          {slices.map((s) => (
-            <li key={s.label} className="flex items-center gap-2 text-white/85">
-              <span
-                className="inline-block h-2.5 w-4 rounded-sm"
-                style={{ backgroundColor: s.color }}
+    <CaseStudy
+      slug="token-nest"
+      aInk="#8AE28F"
+      aSoft="#18221C"
+      chapters={[
+        { id: "overview", label: "Overview" },
+        { id: "problem", label: "Problem" },
+        { id: "research", label: "Research" },
+        { id: "persona", label: "Persona" },
+        { id: "process", label: "Process" },
+        { id: "system", label: "Design system" },
+        { id: "screens", label: "Screens" },
+        { id: "modes", label: "Light & dark" },
+        { id: "results", label: "Results" },
+      ]}
+      hero={
+        <header className="tn-hero">
+          <div className="wrap tn-hero-in">
+            <Link className="tn-back lab" href="/projects">
+              <ChevronLeft size={14} aria-hidden /> All projects
+            </Link>
+            <div className="tn-hero-copy">
+            <Image
+              className="tn-logo"
+              src={img("logo-mark.png")}
+              alt=""
+              width={374}
+              height={305}
+              priority
+              sizes="64px"
+            />
+            <h1 className="tn-word">Token Nest</h1>
+            <p className="tn-kicker">Blockchain Crypto Wallet App</p>
+            <p className="tn-sub">
+              A comprehensive UX/UI case study on designing a secure, intuitive cryptocurrency portfolio management app
+              from research to high-fidelity screens.
+            </p>
+            <ul className="tn-pills">
+              {["UX Research", "UI Design", "Prototyping", "Usability Testing"].map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
+            </div>
+            <div className="tn-hero-phones">
+              <Image
+                className="tn-phone tn-phone-a"
+                src={img("hero-phone-history.webp")}
+                alt="Token Nest wallet: total balance and recent transaction history"
+                width={815}
+                height={2000}
+                priority
+                sizes="(min-width: 900px) 260px, 40vw"
               />
-              {s.label}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
-
-// ---------- Reusable section wrapper ----------
-function Section({
-  id,
-  children,
-  className = "",
-}: {
-  id?: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <section
-      id={id}
-      className={`mx-auto w-full max-w-[1200px] px-6 py-16 md:py-24 ${className}`}
+              <Image
+                className="tn-phone tn-phone-b"
+                src={img("hero-phone-welcome.webp")}
+                alt="Token Nest welcome screen with floating coins"
+                width={1144}
+                height={2000}
+                priority
+                sizes="(min-width: 900px) 360px, 56vw"
+              />
+            </div>
+          </div>
+        </header>
+      }
     >
-      {children}
-    </section>
-  );
-}
-
-function H2({ children }: { children: React.ReactNode }) {
-  return (
-    <h2
-      className="text-[36px] md:text-[52px] leading-[1.05] tracking-[-0.01em] text-white"
-      style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}
-    >
-      {children}
-    </h2>
-  );
-}
-
-// ---------- Light & Dark Mode section ----------
-function ModeSection() {
-  const [mode, setMode] = useState<"dark" | "light">("light");
-
-  const isDark = mode === "dark";
-  const phones = isDark
-    ? [
-        { title: "Home",       img: "/images/case-studies/token-nest/dm-home.png" },
-        { title: "Withdrawal", img: "/images/case-studies/token-nest/dm-withdrawal.png" },
-        { title: "Markets",    img: "/images/case-studies/token-nest/dm-markets.png" },
-      ]
-    : [
-        { title: "Home",       img: "/images/case-studies/token-nest/lm-home.png" },
-        { title: "Withdrawal", img: "/images/case-studies/token-nest/lm-withdrawal.png" },
-        { title: "Markets",    img: "/images/case-studies/token-nest/lm-markets.png" },
-      ];
-
-  const primaryText = isDark ? "#FFFFFF" : "#1E1E1E";
-  const swatches = [
-    { name: "Background",   hex: "#1B2B1B" },
-    { name: "Surface",      hex: "#1C2B2E" },
-    { name: "Primary Text", hex: primaryText },
-    { name: "Accent",       hex: "#5F9A61" },
-  ];
-
-  return (
-    <Section>
-      <H2>Light &amp; Dark Mode</H2>
-      <p className="mt-6 max-w-[720px] text-[14px] leading-[1.7] text-white/70">
-        Both modes designed from scratch, not just a color inversion. Contrast
-        ratios meet WCAG AA across the entire app.
-      </p>
-
-      <div className="mt-8 flex gap-3">
-        <button
-          type="button"
-          onClick={() => setMode("dark")}
-          className="rounded-full px-6 py-2 text-[13px] font-medium transition-colors"
-          style={{
-            backgroundColor: isDark ? BRAND_GREEN : "transparent",
-            border: isDark ? "1px solid transparent" : "1px solid rgba(255,255,255,0.25)",
-            color: isDark ? "#0F1F1B" : "rgba(255,255,255,0.85)",
-          }}
-        >
-          Dark Mode
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("light")}
-          className="rounded-full px-6 py-2 text-[13px] font-medium transition-colors"
-          style={{
-            backgroundColor: !isDark ? BRAND_GREEN : "transparent",
-            border: !isDark ? "1px solid transparent" : "1px solid rgba(255,255,255,0.25)",
-            color: !isDark ? "#0F1F1B" : "rgba(255,255,255,0.85)",
-          }}
-        >
-          Light Mode
-        </button>
-      </div>
-
-      {/* Panel wrapping phones + palette rows */}
-      <div
-        className="mt-10 rounded-[28px] border border-white/10 p-6 md:p-8"
-        style={{ backgroundColor: "#132922" }}
+      {/* 01 · Project overview */}
+      <Chapter
+        id="overview"
+        no="01"
+        title="Project overview"
+        intro="Token Nest is a blockchain-powered crypto wallet and portfolio tracker designed to make decentralized finance accessible to everyday users."
       >
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          {phones.map(({ title, img }) => (
-            <div
-              key={title}
-              className="rounded-[22px] p-5 border border-white/10"
-              style={{ backgroundColor: SURFACE }}
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <span className="text-[16px] text-white">{title}</span>
-                <span
-                  className="size-4 rounded-full"
-                  style={{ backgroundColor: "#3D5A44" }}
-                />
-              </div>
-              <div className="relative mx-auto aspect-[9/16] w-full overflow-hidden rounded-xl">
-                <Image
-                  src={img}
-                  alt={`${title}, ${mode} mode`}
-                  fill
-                  sizes="(min-width:768px) 340px, 100vw"
-                  className="object-contain"
-                  unoptimized
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2">
-          {swatches.map(({ name, hex }) => (
-            <div
-              key={name}
-              className="flex items-center justify-between rounded-2xl border border-white/10 px-5 py-4"
-              style={{ backgroundColor: "#1F2F26" }}
-            >
-              <span className="text-[15px] text-white/85">{name}</span>
-              <span className="font-mono text-[15px] font-bold text-white">
-                {hex}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </Section>
-  );
-}
-
-// ---------- Page ----------
-export default function TokenNestPage() {
-  return (
-    <div
-      className="min-h-screen text-white"
-      style={{ backgroundColor: DARK_BG, fontFamily: 'var(--font-sans)' }}
-    >
-      {/* Sub-nav */}
-      <div className="sticky top-4 z-40 mx-auto mt-6 flex w-fit items-center gap-6 rounded-full border border-white/10 bg-[#111C1F]/90 px-6 py-3 backdrop-blur-xl">
-        <span
-          className="font-mono text-[11px] uppercase tracking-[0.24em] text-white"
-          style={{ fontFamily: 'var(--font-mono)' }}
-        >
-          Token Nest
-        </span>
-        <div className="flex items-center gap-1">
-          {SUB_NAV.slice(0, 4).map((s) => (
-            <a
-              key={s.id}
-              href={`#${s.id}`}
-              className="rounded-full px-3 py-1.5 text-[12px] text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              {s.label}
-            </a>
-          ))}
-          <a
-            href="#contact"
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#1E3D2A] px-3 py-1.5 text-[12px] text-[#8AE28F] hover:bg-[#26522F]"
-          >
-            <ArrowRight className="size-3" />
-            Contact
-          </a>
-        </div>
-      </div>
-
-      {/* --- HERO --- */}
-      <Section id="overview" className="!pt-16 text-center">
-        <div className="mx-auto mb-6 inline-block">
-          <div
-            className="text-[64px] font-bold"
-            style={{ color: BRAND_GREEN, fontFamily: 'var(--font-display)' }}
-          >
-            KE
+        <div className="tn-two">
+          <div className="tn-card">
+            <h3>The Challenge</h3>
+            <p>
+              Cryptocurrency apps are notoriously complex. Existing solutions overwhelm new users with jargon, poor
+              navigation, and trust-eroding UI patterns. Token Nest needed to bridge the gap between sophisticated
+              functionality and approachable design.
+            </p>
+          </div>
+          <div className="tn-card">
+            <h3>The Solution</h3>
+            <p>
+              A clean, security-first mobile experience with progressive disclosure — revealing complexity only as
+              users need it. Streamlined onboarding, real-time portfolio dashboards, and clear transaction flows built
+              around user mental models.
+            </p>
           </div>
         </div>
-        <h1
-          className="mx-auto text-[54px] md:text-[92px] font-bold leading-[1] tracking-[-0.01em]"
-          style={{ fontFamily: 'var(--font-display)' }}
-        >
-          TOKEN NEST
-        </h1>
-        <p
-          className="mt-6 text-[18px]"
-          style={{ color: MINT, fontFamily: 'var(--font-display)' }}
-        >
-          Blockchain Crypto Wallet App
-        </p>
-        <p className="mx-auto mt-6 max-w-[560px] text-[14px] leading-[1.7] text-white/70">
-          A comprehensive UX/UI case study on designing a secure, intuitive
-          cryptocurrency portfolio management app from research to
-          high-fidelity screens.
-        </p>
-        <div className="mx-auto mt-8 flex flex-wrap justify-center gap-3">
-          {["UX Research", "UI Design", "Prototyping", "Usability Testing"].map(
-            (t) => (
-              <span
-                key={t}
-                className="rounded-full border border-[#2F5F44] px-4 py-2 text-[13px]"
-                style={{ color: MINT, backgroundColor: "#132922" }}
-              >
-                {t}
-              </span>
-            )
-          )}
-        </div>
-
-        <div className="relative mx-auto mt-14 aspect-[1600/1199] w-full max-w-[1400px]">
-          <Image
-            src="/images/case-studies/token-nest/hero.png"
-            alt="Token Nest wallet mockups"
-            fill
-            className="object-contain"
-            unoptimized
-            priority
-          />
-        </div>
-      </Section>
-
-      {/* --- PROJECT OVERVIEW --- */}
-      <Section>
-        <H2>Project Overview</H2>
-        <p className="mt-6 max-w-[720px] text-[15px] leading-[1.75] text-white/70">
-          Token Nest is a blockchain-powered crypto wallet and portfolio tracker
-          designed to make decentralized finance accessible to everyday users.
-        </p>
-
-        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
-          {[
-            {
-              t: "The Challenge",
-              b: "Cryptocurrency apps are notoriously complex. Existing solutions overwhelm new users with jargon, poor navigation, and trust-eroding UI patterns. Token Nest needed to bridge the gap between sophisticated functionality and approachable design.",
-            },
-            {
-              t: "The Solution",
-              b: "A clean, security-first mobile experience with progressive disclosure, revealing complexity only as users need it. Streamlined onboarding, real-time portfolio dashboards, and clear transaction flows built around user mental models.",
-            },
-          ].map((c) => (
-            <div
-              key={c.t}
-              className="rounded-2xl p-6 border border-white/10"
-              style={{ backgroundColor: SURFACE }}
-            >
-              <h3 className="text-[17px] font-semibold text-white">{c.t}</h3>
-              <p className="mt-3 text-[13.5px] leading-[1.7] text-white/70">
-                {c.b}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
+        <div className="tn-stats">
           {[
             { icon: TrendingUp, value: "40%", label: "Reduced onboarding drop-off" },
             { icon: Star, value: "4.8★", label: "Target user satisfaction score" },
             { icon: Clock, value: "2 min", label: "Average time-to-first-trade" },
             { icon: Award, value: "92%", label: "Task completion rate in testing" },
-          ].map((s) => (
-            <div
-              key={s.label}
-              className="rounded-2xl p-5 border border-white/10"
-              style={{ backgroundColor: SURFACE }}
-            >
-              <div
-                className="mb-4 flex size-9 items-center justify-center rounded-lg"
-                style={{ backgroundColor: "#1E3D2A", color: MINT }}
-              >
-                <s.icon className="size-4" strokeWidth={2} />
-              </div>
-              <p className="text-[24px] font-bold text-white leading-none">
-                {s.value}
-              </p>
-              <p className="mt-3 text-[12px] leading-[1.4] text-white/60">
-                {s.label}
-              </p>
+          ].map(({ icon: Icon, value, label }) => (
+            <div key={label} className="tn-stat">
+              <span className="tn-ico"><Icon size={16} aria-hidden /></span>
+              <b>{value}</b>
+              <span>{label}</span>
             </div>
           ))}
         </div>
-      </Section>
+      </Chapter>
 
-      {/* --- PROBLEM STATEMENT --- */}
-      <Section id="problem">
-        <H2>Problem Statement</H2>
-        <p className="mt-6 max-w-[720px] text-[14px] leading-[1.7] text-white/70">
-          How might we design a crypto wallet app that earns user trust,
-          reduces cognitive load, and makes blockchain technology feel
-          approachable?
-        </p>
-
-        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
+      {/* 02 · Problem statement */}
+      <Chapter
+        id="problem"
+        no="02"
+        title="Problem statement"
+        intro="How might we design a crypto wallet app that earns user trust, reduces cognitive load, and makes blockchain technology feel approachable?"
+      >
+        <div className="tn-two">
           {[
-            {
-              icon: AlertCircle,
-              t: "Cognitive Overload",
-              b: "Users are bombarded with charts, tickers, and jargon before they understand the basics.",
-            },
-            {
-              icon: ShieldOff,
-              t: "Trust Deficit",
-              b: "Security concerns are the #1 barrier, unclear wallet authentication and opaque transaction fees erode confidence.",
-            },
-            {
-              icon: EyeOff,
-              t: "Poor Discoverability",
-              b: "Key features like send/receive and swap are buried in nested menus, causing abandonment.",
-            },
-            {
-              icon: Smartphone,
-              t: "No Adaptive UI",
-              b: "Most crypto apps lack light/dark mode parity and accessible contrast ratios, excluding a large user segment.",
-            },
-          ].map((p) => (
-            <div
-              key={p.t}
-              className="flex gap-4 rounded-2xl p-5 border border-white/10"
-              style={{ backgroundColor: SURFACE }}
-            >
-              <div
-                className="flex size-9 shrink-0 items-center justify-center rounded-lg"
-                style={{ backgroundColor: "#3E1D1D", color: ERROR }}
-              >
-                <p.icon className="size-4" strokeWidth={2} />
-              </div>
+            { icon: CircleAlert, title: "Cognitive Overload", body: "Users are bombarded with charts, tickers, and jargon before they understand the basics." },
+            { icon: Shield, title: "Trust Deficit", body: "Security concerns are the #1 barrier — unclear wallet authentication and opaque transaction fees erode confidence." },
+            { icon: Eye, title: "Poor Discoverability", body: "Key features like send/receive and swap are buried in nested menus, causing abandonment." },
+            { icon: Smartphone, title: "No Adaptive UI", body: "Most crypto apps lack light/dark mode parity and accessible contrast ratios, excluding a large user segment." },
+          ].map(({ icon: Icon, title, body }) => (
+            <div key={title} className="tn-card tn-problem">
+              <span className="tn-ico tn-ico-warn"><Icon size={16} aria-hidden /></span>
               <div>
-                <h3 className="text-[15px] font-semibold text-white">{p.t}</h3>
-                <p className="mt-1.5 text-[12.5px] leading-[1.6] text-white/65">
-                  {p.b}
-                </p>
+                <h3>{title}</h3>
+                <p>{body}</p>
               </div>
             </div>
           ))}
         </div>
-
-        {/* HMW quote card */}
-        <div
-          className="mt-10 rounded-2xl p-10 text-center"
-          style={{
-            background:
-              "linear-gradient(180deg, #1D4B32 0%, #143823 100%)",
-            border: "1px solid #2F5F44",
-          }}
-        >
-          <p
-            className="font-mono text-[11px] uppercase tracking-[0.28em]"
-            style={{ color: MINT }}
-          >
-            How might we
+        <blockquote className="tn-hmw">
+          <span className="lab">How might we</span>
+          <p>
+            &ldquo;Design a crypto experience so clear and trustworthy that users feel confident managing real money on
+            their first try?&rdquo;
           </p>
-          <p className="mx-auto mt-4 max-w-[820px] text-[24px] md:text-[28px] leading-[1.35] text-white">
-            &ldquo;Design a crypto experience so clear and trustworthy that
-            users feel confident managing real money on their first try?&rdquo;
-          </p>
-        </div>
-      </Section>
+        </blockquote>
+      </Chapter>
 
-      {/* --- RESEARCH & DISCOVERY --- */}
-      <Section id="research">
-        <H2>Research &amp; Discovery</H2>
-        <p className="mt-6 max-w-[720px] text-[14px] leading-[1.7] text-white/70">
-          Mixed-method research: 120 survey respondents + 8 in-depth user
-          interviews + competitive audit of 4 leading crypto apps.
-        </p>
-
-        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
-          {/* survey card */}
-          <div
-            className="rounded-2xl p-6 border border-white/10"
-            style={{ backgroundColor: SURFACE }}
-          >
-            <h3
-              className="text-[18px]"
-              style={{ fontFamily: 'var(--font-display)', color: MINT }}
-            >
-              What users prioritize in a crypto app
-            </h3>
-            <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-white/50">
-              Survey · n=120
-            </p>
-            <div className="mt-6 flex items-center gap-8">
-              <Pie
-                slices={[
-                  { label: "Security", value: 38, color: BRAND_GREEN },
-                  { label: "Ease of Use", value: 29, color: CHART_YELLOW },
-                  { label: "Speed", value: 18, color: CHART_DARKGREEN },
-                  { label: "Low Fees", value: 15, color: CHART_PINK },
-                ]}
-                size={160}
-              />
-              <ul className="flex-1 space-y-2 text-[12.5px]">
-                {[
-                  ["Security", "38%", BRAND_GREEN],
-                  ["Ease of Use", "29%", CHART_YELLOW],
-                  ["Speed", "18%", CHART_DARKGREEN],
-                  ["Low Fees", "15%", CHART_PINK],
-                ].map(([l, v, c]) => (
-                  <li key={l as string} className="flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-white/85">
-                      <span
-                        className="inline-block h-2.5 w-2.5 rounded-full"
-                        style={{ backgroundColor: c as string }}
-                      />
-                      {l}
-                    </span>
-                    <span className="text-white">{v}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      {/* 03 · Research & discovery */}
+      <Chapter
+        id="research"
+        no="03"
+        title="Research & discovery"
+        intro="Mixed-method research: 120 survey respondents + 8 in-depth user interviews + competitive audit of 4 leading crypto apps."
+      >
+        <div className="tn-two">
+          <div className="tn-card">
+            <h3>What users prioritize in a crypto app</h3>
+            <p className="tn-note">Survey · n=120</p>
+            <Donut
+              label="What users prioritize in a crypto app"
+              slices={[
+                { label: "Security", value: 38, color: "#66bb6a" },
+                { label: "Ease of Use", value: 29, color: "#4e8a50" },
+                { label: "Speed", value: 18, color: "#a8d5a2" },
+                { label: "Low Fees", value: 15, color: "#dcefd8" },
+              ]}
+            />
           </div>
-
-          {/* insights card */}
-          <div
-            className="rounded-2xl p-6 border border-white/10"
-            style={{ backgroundColor: SURFACE }}
-          >
-            <h3
-              className="text-[18px]"
-              style={{ fontFamily: 'var(--font-display)', color: MINT }}
-            >
-              Key Survey Insights
-            </h3>
-            <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-white/50">
-              Interview synthesis · n=8
-            </p>
-            <ul className="mt-5 space-y-4 text-[13px] leading-[1.55]">
+          <div className="tn-card">
+            <h3>Key Survey Insights</h3>
+            <p className="tn-note">Interview synthesis · n=8</p>
+            <ul className="tn-insights">
               {[
                 ["76%", "of users abandoned a crypto app due to confusing onboarding"],
                 ["83%", "expressed anxiety about making irreversible transaction mistakes"],
                 ["61%", "check portfolio balance at least 3× per day"],
                 ["54%", "prefer dark mode for extended financial app sessions"],
-              ].map(([stat, note]) => (
-                <li key={stat} className="flex items-start gap-4">
-                  <span
-                    className="text-[22px] font-bold shrink-0 w-14"
-                    style={{ color: BRAND_GREEN }}
-                  >
-                    {stat}
-                  </span>
-                  <span className="text-white/75">{note}</span>
+              ].map(([v, t]) => (
+                <li key={v}>
+                  <b>{v}</b>
+                  <span>{t}</span>
                 </li>
               ))}
             </ul>
           </div>
         </div>
 
-        {/* 9 pie chart grid */}
-        <div
-          className="mt-8 rounded-2xl p-8 border border-white/10"
-          style={{ backgroundColor: SURFACE }}
-        >
-          <div className="grid grid-cols-1 gap-x-12 gap-y-10 md:grid-cols-2">
-            <ChartCard
-              question="How often do you use crypto trading apps?"
-              slices={[
-                { label: "A few times a week", value: 35, color: CHART_DARKGREEN },
-                { label: "Once a day", value: 25, color: CHART_YELLOW },
-                { label: "Several times a day", value: 25, color: CHART_CYAN },
-                { label: "Rarely", value: 15, color: CHART_PINK },
-              ]}
-            />
-            <ChartCard
-              question="What are the main reasons for using cryptocurrency trading apps?"
-              slices={[
-                { label: "To buy and sell cryptocurrencies", value: 34, color: CHART_DARKGREEN },
-                { label: "To explore new investment opportunities", value: 26, color: CHART_YELLOW },
-                { label: "To track my portfolio", value: 22, color: CHART_CYAN },
-                { label: "To monitor market trends", value: 18, color: CHART_PINK },
-              ]}
-            />
-            <ChartCard
-              question="What features do you like in crypto apps?"
-              slices={[
-                { label: "Easy-to-use app", value: 32, color: CHART_YELLOW },
-                { label: "Secure wallet storage", value: 28, color: CHART_CYAN },
-                { label: "Variety of cryptocurrencies supported", value: 22, color: CHART_DARKGREEN },
-                { label: "Real-time data", value: 18, color: CHART_PINK },
-              ]}
-            />
-            <ChartCard
-              question="What challenges do you face with crypto apps?"
-              slices={[
-                { label: "Complex user interface", value: 34, color: CHART_PINK },
-                { label: "Concerns about security", value: 28, color: CHART_YELLOW },
-                { label: "High transaction fees", value: 22, color: CHART_CYAN },
-                { label: "Limited customer support", value: 16, color: CHART_DARKGREEN },
-              ]}
-            />
-            <ChartCard
-              question="How easy is it to use your current crypto app?"
-              slices={[
-                { label: "Easy", value: 45, color: CHART_CYAN },
-                { label: "Difficult", value: 35, color: CHART_YELLOW },
-                { label: "Neutral", value: 20, color: CHART_DARKGREEN },
-              ]}
-            />
-            <ChartCard
-              question="How can crypto app interfaces improve?"
-              slices={[
-                { label: "Simplify navigation", value: 32, color: CHART_CYAN },
-                { label: "Provide clear instructions and guides", value: 26, color: CHART_YELLOW },
-                { label: "Lessen transaction fees", value: 22, color: CHART_DARKGREEN },
-                { label: "Customize settings", value: 20, color: CHART_PINK },
-              ]}
-            />
-            <ChartCard
-              question="What makes you trust a crypto app?"
-              slices={[
-                { label: "Strong reputation", value: 34, color: CHART_DARKGREEN },
-                { label: "Positive user reviews", value: 26, color: CHART_YELLOW },
-                { label: "Transparent fees", value: 22, color: CHART_CYAN },
-                { label: "Popularity", value: 18, color: CHART_PINK },
-              ]}
-            />
-            <ChartCard
-              question="Are you satisfied with your current crypto app customer support"
-              slices={[
-                { label: "Satisfied", value: 40, color: CHART_YELLOW },
-                { label: "Dissatisfied", value: 35, color: CHART_CYAN },
-                { label: "Neutral", value: 25, color: CHART_DARKGREEN },
-              ]}
-            />
+        <div className="tn-panel">
+          <div className="tn-polls">
+            {polls.map((p) => (
+              <Pie key={p.q} title={p.q} slices={p.a} />
+            ))}
           </div>
-
-          <div className="mt-10 flex justify-center">
-            <ChartCard
-              question="Would you recommend your current crypto app?"
-              slices={[
-                { label: "Probably", value: 30, color: CHART_DARKGREEN },
-                { label: "Not sure", value: 25, color: CHART_YELLOW },
-                { label: "Definitely", value: 25, color: CHART_CYAN },
-                { label: "No", value: 20, color: CHART_PINK },
-              ]}
-            />
-          </div>
-
-          <p className="mt-10 text-center text-[13px] leading-[1.7] text-white/60 max-w-[720px] mx-auto">
-            These questions helped me gather insights into users behaviors,
-            preferences, pain points, and satisfaction levels with
-            cryptocurrency trading apps, guiding the design and development of
-            a more user-friendly and effective app.
+          <p className="tn-panel-note">
+            These questions helped me gather insights into users behaviors, preferences, pain points, and satisfaction
+            levels with cryptocurrency trading apps, guiding the design and development of a more user-friendly and
+            effective app.
           </p>
         </div>
 
-        {/* Competitive Analysis */}
-        <div
-          className="mt-8 rounded-2xl p-8 border border-white/10"
-          style={{ backgroundColor: SURFACE }}
-        >
-          <h3 className="text-[18px] font-semibold text-white">Competitive Analysis</h3>
-          <p className="mt-2 text-[13px] text-white/60">
-            Scored on Ease of Use, Trust Signals &amp; Feature Depth. We need
-            to understand how users interact with them.
-          </p>
-          <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div className="tn-panel">
+          <h3 className="tn-panel-h">Competitive Analysis</h3>
+          <p className="tn-note">Scored on Ease of Use, Trust Signals &amp; Feature Depth. We need to understand how users interact with them.</p>
+          <div className="tn-two tn-comp">
             {[
               {
                 name: "Coinbase",
-                mark: "C",
-                strength:
-                  "Coinbase is known for its user-friendly interface and beginner-friendly approach, making it easy for users like Sarah to buy, sell, and manage cryptocurrencies. It offers a wide range of cryptocurrencies and provides educational resources to help users understand the market.",
-                weakness:
-                  "Coinbase has been criticised for its relatively high transaction fees compared to other platforms. Its customer support is sometimes criticised for being slow to respond.",
+                logo: "logo-coinbase.png",
+                strength: [
+                  "Coinbase is known for its user-friendly interface and beginner-friendly approach, making it easy for users like Sarah to buy, sell, and manage cryptocurrencies.",
+                  "It offers a wide range of cryptocurrencies and provides educational resources to help users understand the market.",
+                ],
+                weakness: [
+                  "Coinbase has been criticised for its relatively high transaction fees compared to other platforms.",
+                  "Its customer support is sometimes criticised for being slow to respond.",
+                ],
               },
               {
                 name: "Kraken",
-                mark: "M",
-                strength:
-                  "Kraken is known for its strong security measures and regulatory compliance, providing users with peace of mind when it comes to protecting their funds. It offers a wide range of cryptocurrencies and trading pairs, as well as margin trading and staking options.",
-                weakness:
-                  "Kraken's interface may appear more complex compared to other more beginner-friendly platforms. Its customer support has received mixed reviews in terms of responsiveness and effectiveness.",
+                logo: "logo-kraken.png",
+                strength: [
+                  "Kraken is known for its strong security measures and regulatory compliance, providing users with peace of mind when it comes to protecting their funds.",
+                  "It offers a wide range of cryptocurrencies and trading pairs, as well as margin trading and staking options.",
+                ],
+                weakness: [
+                  "Kraken's interface may appear more complex compared to other more beginner-friendly platforms.",
+                  "Its customer support has received mixed reviews in terms of responsiveness and effectiveness.",
+                ],
               },
             ].map((c) => (
-              <div
-                key={c.name}
-                className="rounded-xl p-5 border"
-                style={{ borderColor: "#2F5F44", backgroundColor: "#0F1F1B" }}
-              >
-                <div className="flex items-center justify-between">
-                  <h4 className="text-[16px] font-medium text-white">{c.name}</h4>
-                  <span
-                    className="flex size-8 items-center justify-center rounded-lg text-[13px] font-bold text-white"
-                    style={{ backgroundColor: c.name === "Coinbase" ? "#2563EB" : "#7C3AED" }}
-                  >
-                    {c.mark}
-                  </span>
-                </div>
-                <div className="mt-4 text-[12px] text-white/75">
-                  <p className="font-semibold text-white/90">Strength:</p>
-                  <ul className="mt-1 list-disc pl-4 leading-[1.6]">
-                    <li>{c.strength}</li>
-                  </ul>
-                  <p className="mt-4 font-semibold text-white/90">Weakness:</p>
-                  <ul className="mt-1 list-disc pl-4 leading-[1.6]">
-                    <li>{c.weakness}</li>
-                  </ul>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* --- USER PERSONAS --- */}
-      <Section>
-        <H2>User Personas</H2>
-        <p className="mt-6 max-w-[720px] text-[14px] leading-[1.7] text-white/70">
-          Two distinct archetypes emerged from research, the Curious Investor
-          and the Practical Transactor. We focused on the curious investor.
-        </p>
-
-        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {/* Persona left card */}
-          <div
-            className="rounded-2xl p-5 border"
-            style={{ backgroundColor: SURFACE, borderColor: BRAND_GREEN }}
-          >
-            <div className="relative aspect-square w-full overflow-hidden rounded-xl">
-              <Image
-                src="/images/case-studies/token-nest/persona.png"
-                alt="Persona portrait"
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            </div>
-            <h4 className="mt-5 text-[14px] font-semibold text-white">
-              Demographic
-            </h4>
-            <ul className="mt-3 space-y-1 text-[12px] text-white/70">
-              <li>Name: Matt Davids</li>
-              <li>Age: 32</li>
-              <li>Occupation: Marketing Manager</li>
-              <li>Education: Bachelor&apos;s Degree in Marketing</li>
-              <li>Location: Abuja</li>
-            </ul>
-            <div
-              className="mt-5 rounded-lg border p-3 text-[11px] leading-[1.5]"
-              style={{ borderColor: BRAND_GREEN, backgroundColor: "#132922", color: MINT }}
-            >
-              &ldquo;I&apos;m excited about the potential of cryptocurrencies,
-              but I want to make sure I&apos;m making smart investment
-              decisions and protecting my money.&rdquo;
-            </div>
-          </div>
-
-          {/* Two column right */}
-          <div className="col-span-1 flex flex-col gap-5 md:col-span-2">
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              {[
-                {
-                  t: "User story",
-                  b: "Matt is a 32-year-old marketing manager who recently became interested in cryptocurrencies. He has some savings that he wants to invest in crypto to diversify his portfolio and potentially earn higher returns than traditional investments.",
-                },
-                {
-                  t: "Motivation",
-                  b: "Matt is motivated by the potential for high returns on his investments and the opportunity to be an early adopter of innovative technologies like blockchain. He also values convenience and simplicity in the tools and platforms he uses.",
-                },
-              ].map((c) => (
-                <div
-                  key={c.t}
-                  className="rounded-xl p-5 border"
-                  style={{ borderColor: BRAND_GREEN, backgroundColor: SURFACE }}
-                >
-                  <h4 className="text-[14px] font-semibold text-white">{c.t}</h4>
-                  <p className="mt-2 text-[12px] leading-[1.6] text-white/70">
-                    {c.b}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              {[
-                {
-                  t: "Goals",
-                  b: [
-                    "Invest in cryptocurrencies to diversify his investment portfolio.",
-                    "Make informed decisions about buying, selling, and holding cryptocurrencies to maximize his investment returns.",
-                  ],
-                },
-                {
-                  t: "Pain points",
-                  b: [
-                    "Limited understanding of how crypto trading works and which platforms to trust.",
-                    "Concerns about the security of his funds and the potential for scams crypto space.",
-                    "Difficulty navigating complex user interfaces.",
-                  ],
-                },
-              ].map((c) => (
-                <div
-                  key={c.t}
-                  className="rounded-xl p-5 border"
-                  style={{ borderColor: BRAND_GREEN, backgroundColor: SURFACE }}
-                >
-                  <h4 className="text-[14px] font-semibold text-white">{c.t}</h4>
-                  <ul className="mt-2 list-disc pl-4 text-[12px] leading-[1.6] text-white/70">
-                    {c.b.map((b, i) => (
-                      <li key={i}>{b}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* --- EMPATHY MAP --- */}
-      <Section>
-        <H2>Empathy Map</H2>
-        <div className="mt-10 relative grid grid-cols-2 gap-6">
-          {[
-            {
-              t: "SAYS",
-              b: [
-                "\"I'm excited about the potential of cryptocurrencies.\"",
-                "\"I want to easily buy and sell cryptocurrencies without too much hassle.\"",
-              ],
-            },
-            {
-              t: "THINKS",
-              b: [
-                "I'm concerned about the security of my funds and investments",
-                "\" I am very careful about the reliability of the platform I use.\"",
-              ],
-            },
-            {
-              t: "DOES",
-              b: [
-                "They frequently check crypto prices on various platforms.",
-                "He engages in trading activities on the platforms he's used to.",
-              ],
-            },
-            {
-              t: "FEELS",
-              b: [
-                "He feels excited about the potential of cryptocurrencies.",
-                "He is anxious about the risks involved.",
-              ],
-            },
-          ].map((c) => (
-            <div
-              key={c.t}
-              className="rounded-2xl p-6 border relative"
-              style={{ borderColor: BRAND_GREEN, backgroundColor: SURFACE }}
-            >
-              <h4
-                className="text-center text-[16px]"
-                style={{ fontFamily: 'var(--font-display)', color: MINT }}
-              >
-                {c.t}
-              </h4>
-              <ul className="mt-4 space-y-2 list-disc pl-4 text-[12px] leading-[1.6] text-white/75">
-                {c.b.map((b, i) => (
-                  <li key={i}>{b}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-          {/* Center avatar */}
-          <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
-            <div
-              className="size-24 overflow-hidden rounded-full border-2"
-              style={{ borderColor: BRAND_GREEN }}
-            >
-              <Image
-                src="/images/case-studies/token-nest/persona.png"
-                alt="Persona"
-                width={100}
-                height={100}
-                className="size-full object-cover"
-                unoptimized
-              />
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* --- DESIGN PROCESS --- */}
-      <Section id="process">
-        <H2>Design Process</H2>
-        <p className="mt-6 max-w-[720px] text-[14px] leading-[1.7] text-white/70">
-          A double-diamond methodology grounded in continuous user feedback and
-          iterative prototyping.
-        </p>
-
-        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {[
-            {
-              icon: Compass,
-              t: "Discover",
-              b: "Surveys, interviews, and competitive audits to understand user mental models and pain points.",
-            },
-            {
-              icon: Lightbulb,
-              t: "Define",
-              b: "Synthesized research into HMW statements, affinity maps, and a clear problem space.",
-            },
-            {
-              icon: Sparkles,
-              t: "Ideate",
-              b: "Sketches, crazy 8s, and design sprints to explore divergent solutions before converging.",
-            },
-            {
-              icon: Layers,
-              t: "Design",
-              b: "Low-fi wireframes → mid-fi clickable prototype → high-fidelity Figma screens.",
-            },
-            {
-              icon: BarChart3,
-              t: "Test",
-              b: "5 usability sessions per iteration, measuring task completion rate and error frequency.",
-            },
-            {
-              icon: RefreshCw,
-              t: "Iterate",
-              b: "Rapid design iterations based on test findings, prioritized by severity and frequency.",
-            },
-          ].map((step) => (
-            <div
-              key={step.t}
-              className="rounded-2xl p-5 border border-white/10"
-              style={{ backgroundColor: SURFACE }}
-            >
-              <div
-                className="mb-4 flex size-9 items-center justify-center rounded-lg"
-                style={{ backgroundColor: "#1E3D2A", color: MINT }}
-              >
-                <step.icon className="size-4" strokeWidth={2} />
-              </div>
-              <h4 className="text-[15px] font-semibold text-white">{step.t}</h4>
-              <p className="mt-2 text-[12px] leading-[1.6] text-white/65">
-                {step.b}
-              </p>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      {/* --- INFORMATION ARCHITECTURE --- */}
-      <Section>
-        <div
-          className="rounded-2xl p-8 md:p-10 border border-white/10"
-          style={{
-            background:
-              "linear-gradient(180deg, #143823 0%, #0F1F1B 100%)",
-          }}
-        >
-          <H2>Information Architecture</H2>
-          <p className="mt-6 max-w-[720px] text-[14px] leading-[1.7] text-white/70">
-            5 primary navigation sections with a flat hierarchy, key actions
-            reachable in 2 taps or fewer.
-          </p>
-
-          <div className="mt-10 rounded-2xl p-6 border border-white/10">
-            {/* Root */}
-            <div className="flex justify-center">
-              <span
-                className="rounded-full border px-6 py-2 text-[13px]"
-                style={{ borderColor: BRAND_GREEN, backgroundColor: "#132922", color: MINT }}
-              >
-                TOKEN NEST App
-              </span>
-            </div>
-            <div className="mx-auto my-4 h-6 w-px bg-white/20" />
-            <div className="grid grid-cols-5 gap-3">
-              {["Onboarding", "Home", "Markets", "Wallet", "Profile"].map((h) => (
-                <div key={h} className="text-center">
-                  <div
-                    className="rounded-full border px-3 py-1.5 text-[11.5px]"
-                    style={{ borderColor: BRAND_GREEN, backgroundColor: "#0F1F1B", color: MINT }}
-                  >
-                    {h}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 grid grid-cols-5 gap-3 text-center text-[11px]">
-              {[
-                ["Welcome Screen", "Portfolio Overview", "Coin List", "Send", "Settings"],
-                ["Sign Up / Login", "Balance Card", "Price Charts", "Receive", "Security"],
-                ["Biometric Auth", "Trending Assets", "Watchlist", "QR Scanner", "Notifications"],
-                ["Wallet Setup", "Quick Actions", "News Feed", "Transaction History", "Support"],
-              ].flatMap((row, ri) =>
-                row.map((cell) => (
-                  <div
-                    key={`${ri}-${cell}`}
-                    className="rounded-full border px-2 py-1.5 text-white/80"
-                    style={{ borderColor: "#3A4B4E", backgroundColor: "#132922" }}
-                  >
-                    {cell}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-            {[
-              { t: "2-Tap Rule", b: "Any primary action (Send, Receive, Buy) reachable in ≤2 taps from Home." },
-              { t: "Progressive Disclosure", b: "Advanced settings hidden until user explicitly opts into expert mode." },
-              { t: "Persistent Bottom Nav", b: "Core 5 tabs always visible, no hamburger menus burying critical paths." },
-            ].map((r) => (
-              <div key={r.t} className="rounded-xl p-4 border border-white/10">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="flex size-5 items-center justify-center rounded-full"
-                    style={{ backgroundColor: SUCCESS, color: "#0F1F1B" }}
-                  >
-                    <Check className="size-3" strokeWidth={3} />
-                  </span>
-                  <p className="text-[13px] font-semibold text-white">{r.t}</p>
-                </div>
-                <p className="mt-2 text-[12px] leading-[1.6] text-white/65">
-                  {r.b}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* --- VISUAL DESIGN SYSTEM --- */}
-      <Section>
-        <H2>Visual Design System</H2>
-        <p className="mt-6 max-w-[720px] text-[14px] leading-[1.7] text-white/70">
-          A consistent design language built on accessibility-first color
-          tokens, a legible type scale, and reusable component patterns.
-        </p>
-
-        {/* Colour palette */}
-        <p className="mt-10 font-mono text-[11px] uppercase tracking-[0.24em] text-white/50">
-          Colour Palette
-        </p>
-        <div className="mt-4 grid grid-cols-4 gap-4 md:grid-cols-8">
-          {[
-            ["Brand Green", "#5F9A61"],
-            ["Dark BG", "#263826"],
-            ["Surface", "#1C2B2E"],
-            ["Accent Mint", "#A8D5A2"],
-            ["Text Primary", "#FFFFFF"],
-            ["Text Secondary", "#B3B3B3"],
-            ["Success", "#66BB6A"],
-            ["Error", "#E57373"],
-          ].map(([name, hex]) => (
-            <div key={name}>
-              <div
-                className="h-16 w-full rounded-lg border border-white/10"
-                style={{ backgroundColor: hex }}
-              />
-              <p className="mt-2 text-[11.5px] text-white/85">{name}</p>
-              <p className="text-[10.5px] text-white/50">{hex}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Typography */}
-        <div
-          className="mt-8 rounded-2xl border border-white/10 p-6"
-          style={{ backgroundColor: SURFACE }}
-        >
-          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-white/50">
-            Typography Scale
-          </p>
-          <div className="mt-4 divide-y divide-white/10 text-[13px]">
-            {[
-              ["DISPLAY", <span key="d" className="text-[36px] font-bold" style={{fontFamily: 'var(--font-display)'}}>Token Nest</span>, "Fraunces"],
-              ["H1 HEADING", <span key="h1" className="text-[24px] font-semibold text-white" style={{fontFamily: 'var(--font-display)'}}>Portfolio Overview</span>, "Fraunces"],
-              ["H2 HEADING", <span key="h2" className="text-[18px] font-medium text-white">Ethereum · ETH</span>, "Inter"],
-              ["BODY", <span key="b" className="text-[14px] text-white/85">Your wallet is secured with biometric authentication.</span>, "Inter"],
-              ["CAPTION", <span key="c" className="text-[12px] text-white/60">Last updated 2 min ago · USDT</span>, "Inter"],
-            ].map(([label, sample, font]) => (
-              <div key={label as string} className="grid grid-cols-[110px_1fr_auto] items-center gap-4 py-3">
-                <span className="text-[11px] uppercase tracking-[0.15em] text-white/50">
-                  {label}
-                </span>
-                <div>{sample}</div>
-                <span className="text-[11px] text-white/40">{font}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Component library */}
-        <div
-          className="mt-6 rounded-2xl border border-white/10 p-6"
-          style={{ backgroundColor: SURFACE }}
-        >
-          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-white/50">
-            Component Library
-          </p>
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <button
-              className="rounded-full px-4 py-2 text-[12px] font-medium text-white"
-              style={{ backgroundColor: BRAND_GREEN }}
-            >
-              Primary CTA
-            </button>
-            <button
-              className="rounded-full border px-4 py-2 text-[12px]"
-              style={{ borderColor: BRAND_GREEN, color: MINT, backgroundColor: "#132922" }}
-            >
-              Secondary
-            </button>
-            <button className="rounded-full border border-white/20 px-4 py-2 text-[12px] text-white/80">
-              Ghost
-            </button>
-            <span
-              className="rounded-full px-3 py-1 text-[11px]"
-              style={{ backgroundColor: "#1E3D2A", color: SUCCESS }}
-            >
-              +2.4% Badge
-            </span>
-            <span
-              className="rounded-full px-3 py-1 text-[11px]"
-              style={{ backgroundColor: "#3E1D1D", color: ERROR }}
-            >
-              -1.2% Badge
-            </span>
-          </div>
-          <div className="mt-5 flex items-center gap-3 rounded-lg border border-white/15 p-3 max-w-md">
-            <span className="text-white/40 text-[13px]">◱</span>
-            <span className="flex-1 text-[13px] text-white/60">Wallet address input</span>
-            <button
-              className="flex size-8 items-center justify-center rounded-md text-white"
-              style={{ backgroundColor: BRAND_GREEN }}
-            >
-              <ArrowRight className="size-4" />
-            </button>
-          </div>
-        </div>
-      </Section>
-
-      {/* --- HIGH-FIDELITY SCREENS --- */}
-      <Section id="screens">
-        <div
-          className="rounded-2xl p-8 md:p-10 border border-white/10"
-          style={{ background: "linear-gradient(180deg, #143823 0%, #0F1F1B 100%)" }}
-        >
-          <H2>High-Fidelity Screens</H2>
-          <p className="mt-6 max-w-[720px] text-[14px] leading-[1.7] text-white/70">
-            Key screens designed in Figma with precise attention to spacing,
-            hierarchy, and interaction states.
-          </p>
-
-          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
-            {[
-              {
-                pill: "ONBOARDING",
-                stat: "↓ 40% onboarding drop-off",
-                t: "Onboarding & Welcome",
-                b: "Clean brand introduction with clear value propositions. Biometric setup prompted upfront, trust established before the first transaction.",
-                img: "/images/case-studies/token-nest/onboarding.png",
-              },
-              {
-                pill: "HOME",
-                stat: "↑ 62% daily active return",
-                t: "Portfolio Dashboard",
-                b: "Real-time balance card with sparkline charts. Top 3 holdings at a glance. Clear % change with color-coded positive/negative states.",
-                img: "/images/case-studies/token-nest/dashboard.png",
-              },
-              {
-                pill: "TRANSACTIONS",
-                stat: "92% task completion",
-                t: "Send & Receive Flow",
-                b: "QR scan for receive. Confirmation screen with fee breakdown before submission. Error prevention built into address validation.",
-                img: "/images/case-studies/token-nest/transactions.png",
-              },
-              {
-                pill: "MARKETS",
-                stat: "12s avg discovery time",
-                t: "Market Explorer",
-                b: "Trending coins, watchlist, and interactive price charts. Search and filter reduce time-to-discovery from 45s to 12s.",
-                img: "/images/case-studies/token-nest/markets.png",
-              },
-            ].map((s) => (
-              <div
-                key={s.t}
-                className="rounded-2xl p-5 border border-white/10"
-                style={{ backgroundColor: SURFACE }}
-              >
-                <div
-                  className="relative flex aspect-[16/9] items-center justify-center overflow-hidden rounded-xl border border-white/10 mb-5"
-                  style={{ backgroundColor: "#0F1F1B" }}
-                >
+              <div key={c.name}>
+                <div className="tn-brand">
+                  <span>{c.name}</span>
                   <Image
-                    src={s.img}
-                    alt={s.t}
-                    fill
-                    sizes="(min-width:768px) 560px, 100vw"
-                    className="object-contain p-3"
-                    unoptimized
+                    className="tn-brand-logo"
+                    src={img(c.logo)}
+                    alt={`${c.name} logo`}
+                    width={448}
+                    height={448}
+                    sizes="72px"
                   />
                 </div>
-                <div className="flex items-center justify-between">
-                  <span
-                    className="rounded-full px-3 py-1 text-[10.5px] uppercase tracking-[0.18em]"
-                    style={{ backgroundColor: "#1E3D2A", color: MINT }}
-                  >
-                    {s.pill}
-                  </span>
-                  <span className="text-[11px]" style={{ color: MINT }}>
-                    {s.stat}
-                  </span>
+                <div className="tn-card tn-comp-card">
+                  <p className="lab tn-good">Strength</p>
+                  <ul>{c.strength.map((t) => <li key={t}>{t}</li>)}</ul>
+                  <p className="lab tn-bad">Weakness</p>
+                  <ul>{c.weakness.map((t) => <li key={t}>{t}</li>)}</ul>
                 </div>
-                <h4 className="mt-4 text-[16px] font-semibold text-white">{s.t}</h4>
-                <p className="mt-2 text-[12.5px] leading-[1.6] text-white/65">
-                  {s.b}
-                </p>
               </div>
             ))}
           </div>
         </div>
-      </Section>
+      </Chapter>
 
-      {/* --- LIGHT & DARK MODE --- */}
-      <ModeSection />
+      {/* 04 · Persona + empathy map */}
+      <Chapter
+        id="persona"
+        no="04"
+        title="User personas"
+        intro="Two distinct archetypes emerged from research — the Curious Investor and the Practical Transactor, we focused on the curious investor"
+      >
+        <div className="tn-persona">
+          <div className="tn-card tn-person">
+            <Slot name="Persona photo: Matt Davids" ratio="4 / 3" />
+            <p className="lab">Demographic</p>
+            <dl>
+              <div><dt>Name:</dt><dd>Matt Davids</dd></div>
+              <div><dt>Age:</dt><dd>32</dd></div>
+              <div><dt>Occupation:</dt><dd>Marketing Manager</dd></div>
+              <div><dt>Education:</dt><dd>Bachelor&apos;s Degree in Marketing</dd></div>
+              <div><dt>Location:</dt><dd>Abuja</dd></div>
+            </dl>
+            <p className="tn-says">
+              &ldquo;I&apos;m excited about the potential of cryptocurrencies, but I want to make sure I&apos;m making
+              smart investment decisions and protecting my money.&rdquo;
+            </p>
+          </div>
+          <div className="tn-persona-grid">
+            <div className="tn-card">
+              <h3>User story</h3>
+              <p>
+                Matt is a 32-year-old marketing manager who recently became interested in cryptocurrencies. He has some
+                savings that he wants to invest in crypto to diversify his portfolio and potentially earn higher returns
+                than traditional investments.
+              </p>
+            </div>
+            <div className="tn-card">
+              <h3>Motivation</h3>
+              <p>
+                Matt is motivated by the potential for high returns on his investments and the opportunity to be an
+                early adopter of innovative technologies like blockchain. He also values convenience and simplicity in
+                the tools and platforms he uses.
+              </p>
+            </div>
+            <div className="tn-card">
+              <h3>Goals</h3>
+              <ul>
+                <li>Invest in cryptocurrencies to diversify his investment portfolio.</li>
+                <li>Make informed decisions about buying, selling, and holding cryptocurrencies to maximize his investment returns.</li>
+              </ul>
+            </div>
+            <div className="tn-card">
+              <h3>Pain points</h3>
+              <ul>
+                <li>Limited understanding of how crypto trading works and which platforms to trust.</li>
+                <li>Concern about the security of his funds and the potential for scams crypto space.</li>
+                <li>Difficulty navigating complex user interfaces.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
 
-      {/* --- RESULTS & LEARNINGS --- */}
-      <Section>
-        <H2>Results &amp; Learnings</H2>
-        <p className="mt-6 max-w-[720px] text-[14px] leading-[1.7] text-white/70">
-          The redesign delivered measurable improvements across trust,
-          usability, and conversion.
-        </p>
+        <h3 className="tn-sub-h">Empathy Map</h3>
+        <div className="tn-empathy">
+          {[
+            { k: "Says", items: ["“I'm excited about the potential of cryptocurrencies”", "“I want to easily buy and sell cryptocurrencies without too much hassle”"] },
+            { k: "Thinks", items: ["I'm concerned about the security of my funds and investments", "“ I am very careful about the reliability of the platform I use ”"] },
+            { k: "Does", items: ["They frequently check crypto prices on various platforms.", "He engages in trading activities on the platforms he's used to."] },
+            { k: "Feels", items: ["He feels excited about the potential of cryptocurrencies.", "He is anxious about the risks involved."] },
+          ].map((b) => (
+            <div key={b.k} className="tn-card tn-emp">
+              <h4>{b.k}</h4>
+              <ul>{b.items.map((t) => <li key={t}>{t}</li>)}</ul>
+            </div>
+          ))}
+          <div className="tn-emp-ring" aria-hidden />
+          <Slot name="Persona photo (round, centre of the map)" ratio="1 / 1" round className="tn-emp-face" />
+        </div>
+      </Chapter>
 
-        <div className="mt-10 rounded-2xl p-8 border border-white/10" style={{ backgroundColor: SURFACE }}>
-          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-white/50">
-            Key learnings
-          </p>
-          <ul className="mt-4 space-y-3 text-[13.5px] leading-[1.7] text-white/75">
+      {/* 05 · Design process + IA */}
+      <Chapter
+        id="process"
+        no="05"
+        title="Design process"
+        intro="A double-diamond methodology grounded in continuous user feedback and iterative prototyping."
+      >
+        <Flow>
+          <ol className="tn-flow">
             {[
-              "Security-first framing outperformed feature-first framing in every usability round, trust is a design decision, not a compliance checkbox.",
-              "Progressive disclosure kept task completion at 92% without hiding advanced features from expert users who wanted them.",
-              "Copy is the interface. Rewriting error states as guidance cut abandonment by 34% during first-transaction flows.",
-              "Light + dark parity from day one prevented late-stage rework and made the product accessible for 54% of users who prefer dark for financial sessions.",
-            ].map((l) => (
-              <li key={l} className="flex gap-3">
-                <span
-                  className="mt-1.5 inline-block size-1.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: BRAND_GREEN }}
-                />
-                <span>{l}</span>
+              { icon: Compass, title: "Discover", body: "Surveys, interviews, and competitive audits to understand user mental models and pain points." },
+              { icon: Target, title: "Define", body: "Synthesized research into HMW statements, affinity maps, and a clear problem space." },
+              { icon: Lightbulb, title: "Ideate", body: "Sketches, crazy 8s, and design sprints to explore divergent solutions before converging." },
+              { icon: PenTool, title: "Design", body: "Low-fi wireframes → mid-fi clickable prototype → high-fidelity Figma screens." },
+              { icon: FlaskConical, title: "Test", body: "5 usability sessions per iteration, measuring task completion rate and error frequency." },
+              { icon: RefreshCw, title: "Iterate", body: "Rapid design iterations based on test findings, prioritized by severity and frequency." },
+            ].map(({ icon: Icon, title, body }, n) => (
+              <li key={title} className="tn-step">
+                <span className="tn-step-no">{String(n + 1).padStart(2, "0")}</span>
+                <span className="tn-ico"><Icon size={16} aria-hidden /></span>
+                <h3>{title}</h3>
+                <p>{body}</p>
               </li>
             ))}
-          </ul>
-        </div>
-      </Section>
+          </ol>
+        </Flow>
 
-      {/* --- CLOSING BAND --- */}
-      <section
-        id="contact"
-        className="border-t border-white/10 py-24 text-center"
-        style={{
-          background:
-            "linear-gradient(180deg, #143823 0%, #0F1F1B 100%)",
-        }}
+        <div className="tn-panel">
+          <h3 className="tn-panel-h">Information Architecture</h3>
+          <p className="tn-note">5 primary navigation sections with a flat hierarchy, key actions reachable in 2 taps or fewer.</p>
+          <Tree
+            root="TOKEN NEST App"
+            columns={[
+              { head: "Onboarding", items: ["Welcome Screen", "Sign Up / Login", "Biometric Auth", "Wallet Setup"] },
+              { head: "Home", items: ["Portfolio Overview", "Balance Card", "Trending Assets", "Quick Actions"] },
+              { head: "Markets", items: ["Coin List", "Price Charts", "Watchlist", "News Feed"] },
+              { head: "Wallet", items: ["Send", "Receive", "QR Scanner", "Transaction History"] },
+              { head: "Profile", items: ["Settings", "Security", "Notifications", "Support"] },
+            ]}
+          />
+          <div className="tn-rules">
+            {[
+              { title: "2-Tap Rule", body: "Any primary action (Send, Receive, Buy) reachable in ≤2 taps from Home." },
+              { title: "Progressive Disclosure", body: "Advanced settings hidden until user explicitly opts into expert mode." },
+              { title: "Persistent Bottom Nav", body: "Core 5 tabs always visible — no hamburger menus burying critical paths." },
+            ].map((r) => (
+              <div key={r.title} className="tn-card tn-rule">
+                <CircleCheck size={16} aria-hidden className="tn-good" />
+                <div>
+                  <h3>{r.title}</h3>
+                  <p>{r.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Chapter>
+
+      {/* 06 · Visual design system */}
+      <Chapter
+        id="system"
+        no="06"
+        title="Visual design system"
+        intro="A consistent design language built on accessibility-first color tokens, a legible type scale, and reusable component patterns."
       >
-        <h2
-          className="text-[42px] md:text-[64px]"
-          style={{ fontFamily: 'var(--font-display)', color: "#fff", fontWeight: 700 }}
-        >
-          THANK YOU FOR WATCHING
-        </h2>
-        <p className="mt-4 text-[14px] text-white/60">
-          Get excited and ready to design smart with me
-        </p>
-      </section>
-    </div>
+        <p className="lab tn-label">Colour palette</p>
+        <Swatches
+          items={[
+            { name: "Brand Green", hex: "#5F9A61" },
+            { name: "Dark BG", hex: "#263826" },
+            { name: "Surface", hex: "#1C2B2E" },
+            { name: "Accent Mint", hex: "#A8D5A2" },
+            { name: "Text Primary", hex: "#FFFFFF" },
+            { name: "Text Secondary", hex: "#B3B3B3" },
+            { name: "Success", hex: "#66BB6A" },
+            { name: "Error", hex: "#E57373" },
+          ]}
+        />
+
+        <div className="tn-panel tn-type">
+          <p className="lab tn-label">Typography scale</p>
+          {[
+            { role: "Display", sample: "Token Nest", font: "Montserrat Alternates", cls: `tn-t-display ${alt.className}` },
+            { role: "H1 Heading", sample: "Portfolio Overview", font: "Montserrat Alternates", cls: `tn-t-h1 ${alt.className}` },
+            { role: "H2 Heading", sample: "Ethereum · ETH", font: "Inter", cls: "tn-t-h2" },
+            { role: "Body", sample: "Your wallet is secured with biometric authentication.", font: "Inter", cls: "tn-t-body" },
+            { role: "Caption", sample: "Last updated 2 min ago · USDT", font: "Inter", cls: "tn-t-cap" },
+          ].map((t) => (
+            <div key={t.role} className="tn-type-row">
+              <span className="lab">{t.role}</span>
+              <span className={t.cls}>{t.sample}</span>
+              <span className="tn-font">{t.font}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="tn-panel">
+          <p className="lab tn-label">Component library</p>
+          <div className="tn-comps">
+            <span className="tn-btn tn-btn-primary">Primary CTA</span>
+            <span className="tn-btn tn-btn-secondary">Secondary</span>
+            <span className="tn-btn tn-btn-ghost">Ghost</span>
+            <span className="tn-badge tn-badge-up">+2.4% Badge</span>
+            <span className="tn-badge tn-badge-down">-1.2% Badge</span>
+            <span className="tn-icon-btn"><Zap size={16} aria-hidden /></span>
+          </div>
+          <div className="tn-input">
+            <Wallet size={14} aria-hidden />
+            <span>Wallet address input</span>
+            <span className="tn-input-go"><ArrowRight size={14} aria-hidden /></span>
+          </div>
+        </div>
+
+        <h3 className="tn-sub-h">Iconography</h3>
+        <ul className="tn-icons" aria-label="Icon set">
+          {iconography.map((Icon, n) => (
+            <li key={n}><Icon size={18} aria-hidden /></li>
+          ))}
+        </ul>
+      </Chapter>
+
+      {/* 07 · High-fidelity screens */}
+      <Chapter
+        id="screens"
+        no="07"
+        title="High-fidelity screens"
+        intro="Key screens designed in Figma with precise attention to spacing, hierarchy, and interaction states."
+      >
+        <div className="tn-two">
+          {[
+            { tag: "Onboarding", shots: [["screen-onboarding-welcome.png", "Welcome screen", 253, 516], ["screen-onboarding-signin.png", "Welcome to Token Nest: create account or sign in", 253, 516], ["screen-onboarding-signup.png", "Create account form", 253, 516]], stat: "↓ 40% onboarding drop-off", title: "Onboarding & Welcome", body: "Clean brand introduction with clear value propositions. Biometric setup prompted upfront — trust established before the first transaction." },
+            { tag: "Home", shots: [["screen-dashboard-home.png", "Portfolio home: wallet value, trending coins and holdings", 253, 516], ["screen-dashboard-profile.png", "Profile and account settings menu", 253, 516], ["screen-dashboard-coins.png", "Cryptocurrency list with prices and market cap", 253, 516]], stat: "↑ 62% daily active return", title: "Portfolio Dashboard", body: "Real-time balance card with sparkline charts. Top 3 holdings at a glance. Clear % change with color-coded positive/negative states." },
+            { tag: "Transactions", shots: [["screen-transfer-history.png", "Balance and recent transaction history", 253, 516], ["screen-transfer-passcode.png", "Confirm passcode with Face ID authentication", 253, 516], ["screen-transfer-withdraw.png", "Withdrawal with destination address and QR code", 253, 516]], stat: "92% task completion", title: "Send & Receive Flow", body: "QR scan for receive. Confirmation screen with fee breakdown before submission. Error prevention built into address validation." },
+            { tag: "Markets", shots: [["screen-markets-coins.png", "Cryptocurrency list with prices and market cap", 253, 516], ["screen-markets-chart.png", "Ethereum price chart with market statistics", 253, 516], ["screen-markets-home.png", "Wallet value with trending coins", 253, 516]], stat: "12s avg discovery time", title: "Market Explorer", body: "Trending coins, watchlist, and interactive price charts. Search and filter reduce time-to-discovery from 45s to 12s." },
+          ].map((s) => (
+            <div key={s.title} className="tn-card tn-screen">
+              {"shots" in s && s.shots ? (
+                <div className="tn-shots">
+                  {(s.shots as Shot[]).map(([f, alt, w = 85, h = 172]) => (
+                    <Image key={f} src={img(f)} alt={alt} width={w} height={h} unoptimized />
+                  ))}
+                </div>
+              ) : (
+                <Slot name={`${s.title} screens`} ratio="16 / 9" />
+              )}
+              <div className="tn-screen-meta">
+                <span className="tn-tag">{s.tag}</span>
+                <span className="tn-good">{s.stat}</span>
+              </div>
+              <h3>{s.title}</h3>
+              <p>{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </Chapter>
+
+      {/* 08 · Light & dark mode */}
+      <Chapter
+        id="modes"
+        no="08"
+        title="Light & dark mode"
+        intro="Both modes designed from scratch — not just a color inversion. Contrast ratios meet WCAG AA across the entire app."
+      >
+        <ModeSwitch />
+      </Chapter>
+
+      {/* 09 · Results & learnings */}
+      <Chapter
+        id="results"
+        no="09"
+        title="Results & learnings"
+        intro="Measured against baseline metrics from competitive app audits and usability benchmarks."
+      >
+        <span className="tn-tag">10 — Outcomes</span>
+        <div className="tn-stats">
+          {[
+            { icon: TrendingUp, label: "Onboarding completion", before: "58%", after: "94%" },
+            { icon: CircleCheck, label: "Task completion rate", before: "61%", after: "92%" },
+            { icon: Star, label: "User satisfaction (SUS)", before: "62/100", after: "84/100" },
+            { icon: ShieldCheck, label: "Error rate", before: "31%", after: "7%" },
+          ].map(({ icon: Icon, label, before, after }) => (
+            <div key={label} className="tn-stat tn-result">
+              <span className="tn-ico"><Icon size={16} aria-hidden /></span>
+              <span className="lab">{label}</span>
+              <div className="tn-ba">
+                <span>
+                  <small>Before</small>
+                  <s>{before}</s>
+                </span>
+                <ArrowRight size={14} aria-hidden className="tn-ba-arrow" />
+                <span>
+                  <small className="tn-good">After</small>
+                  <b>{after}</b>
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="tn-card">
+          <h3>Key Learnings</h3>
+          <ol className="tn-learn">
+            <li>Progressive disclosure dramatically reduced overwhelm, users completed onboarding 36% faster when wallet complexity was introduced gradually.</li>
+            <li>Biometric authentication built in step 2 (not step 8) increased perceived security scores by 28 points in SUS.</li>
+            <li>Confirmation screens with fee breakdowns reduced abandonment on the Send flow from 44% to 9%.</li>
+            <li>Color-coded transaction states (green up / red down) with accessible contrast ratios improved scannability for users with low or impaired vision.</li>
+          </ol>
+        </div>
+      </Chapter>
+    </CaseStudy>
   );
 }
+

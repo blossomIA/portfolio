@@ -1,107 +1,145 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   v2 design system: charcoal, quiet, small. Warm near-black paper with a faint
+   grain, off-white ink in three steps, 12% hairlines, a darker band behind
+   alternating sections. Her pink is the one accent. A warm paper light theme
+   sits behind [data-theme="light"] (toggle in the nav). One family: Archivo.
+   ───────────────────────────────────────────────────────────────────────────── */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #121114;
+  --band: #0c0b0e;
+  --surface: #1b1a1d;
+  --surface-2: #252428;
+  --ink: #f3f1ea;
+  --ink-2: #c9c6bd;
+  --muted: #a8a59b;
+  --faint: #85837b;
+  --line: rgba(243, 241, 234, 0.12);
+  --line-soft: rgba(243, 241, 234, 0.07);
+  --line-strong: rgba(243, 241, 234, 0.22);
+  --on-light: #121114;
+  --glass: rgba(18, 17, 20, 0.78);
+
+  --pink: #f472b6;
+  --pink-ink: #f58cc4;
+  --purple: #a28dff;
+  --cyan: #3dd9ff;
+  --cyan-ink: #3dd9ff;
+
+  --note-yellow: var(--surface);
+  --note-pink: var(--surface);
+  --note-purple: var(--surface);
+  --note-blue: var(--surface);
+
+  --shadow: 0 12px 28px -14px rgba(0, 0, 0, 0.8);
+  /* ashy speckle: white noise baked into the background */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.62' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .22 0 0 0 -.09'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --spine: rgba(0, 0, 0, 0.8);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f9f7f2;
+  --band: #f1eee6;
+  --surface: #fffdf8;
+  --surface-2: #e9e5da;
+  --ink: #17161a;
+  --ink-2: #2b2a30;
+  --muted: #5c5b66;
+  --faint: #75747e;
+  --line: rgba(23, 22, 26, 0.14);
+  --line-soft: rgba(23, 22, 26, 0.08);
+  --line-strong: rgba(23, 22, 26, 0.26);
+  --on-light: #f9f7f2;
+  --glass: rgba(249, 247, 242, 0.8);
+
+  --pink: #e0569f;
+  --pink-ink: #b8327a;
+  --purple: #5b3fe0;
+  --cyan: #0e7490;
+  --cyan-ink: #0e7490;
+
+  --shadow: 0 10px 24px -16px rgba(23, 22, 26, 0.45);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.62' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .09 0 0 0 0 .1 .32 0 0 0 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --spine: rgba(23, 22, 26, 0.22);
+}
+
 :root {
-  --background: #ffffff;
-  --surface: #eceef2;
-  --foreground: #0a0a0a;
-  --muted: #717182;
-  --muted-2: #a1a1aa;
+  --gut: clamp(16px, 3.2vw, 40px);
+  --radius: 14px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
 
-  --ink-32: rgba(0, 0, 0, 0.32);
-  --ink-65: rgba(10, 10, 10, 0.65);
-  --ink-76: rgba(0, 0, 0, 0.76);
-  --border-soft: rgba(0, 0, 0, 0.1);
-
-  --accent-pink: #f472b6;
-  --accent-pink-07: rgba(244, 114, 182, 0.07);
-  --accent-pink-18: rgba(244, 114, 182, 0.18);
-
-  --accent-purple: #9333ea;
-  --accent-purple-soft: rgba(147, 51, 234, 0.6);
-  --accent-purple-07: rgba(147, 51, 234, 0.07);
-  --accent-purple-18: rgba(147, 51, 234, 0.18);
-
-  --accent-cyan: #22d3ee;
-  --accent-cyan-07: rgba(34, 211, 238, 0.07);
+/* Simplicity rule: nothing is tilted. Components still pass --rot inline;
+   this flattens all of them in one place. */
+* {
+  --rot: 0deg !important;
 }
 
 @theme inline {
-  --color-background: var(--background);
+  --color-bg: var(--bg);
   --color-surface: var(--surface);
-  --color-foreground: var(--foreground);
-  --color-ink: var(--foreground);
-  --color-ink-32: var(--ink-32);
-  --color-ink-65: var(--ink-65);
-  --color-ink-76: var(--ink-76);
+  --color-ink: var(--ink);
   --color-muted: var(--muted);
-  --color-muted-2: var(--muted-2);
-  --color-border-soft: var(--border-soft);
+  --color-line: var(--line);
+  --color-pink: var(--pink);
+  --color-purple: var(--purple);
+  --color-cyan: var(--cyan);
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+}
 
-  --color-accent-pink: var(--accent-pink);
-  --color-accent-pink-07: var(--accent-pink-07);
-  --color-accent-pink-18: var(--accent-pink-18);
-  --color-accent-purple: var(--accent-purple);
-  --color-accent-purple-soft: var(--accent-purple-soft);
-  --color-accent-purple-07: var(--accent-purple-07);
-  --color-accent-purple-18: var(--accent-purple-18);
-  --color-accent-cyan: var(--accent-cyan);
-  --color-accent-cyan-07: var(--accent-cyan-07);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-fraunces), "Fraunces", ui-serif, Georgia, serif;
-  --font-body: var(--font-dm-sans), var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Menlo", ui-monospace, "SF Mono", "JetBrains Mono", monospace;
-
-  --tracking-display: -0.0217em;
-  --tracking-h2-lg: -0.0228em;
-  --tracking-h2: -0.0167em;
-  --tracking-body-lg: -0.0225em;
-  --tracking-body: -0.0156em;
-  --tracking-button: -0.0107em;
-  --tracking-label-lg: 0.18em;
-  --tracking-label-sm: 0.05em;
-
-  --radius-card: 16px;
-  --radius-stat: 14px;
-  --radius-pill: 9999px;
+html {
+  background: var(--bg);
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg);
+  background-image: var(--grain);
+  color: var(--ink);
   font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  transition: background-color 0.3s, color 0.3s;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* Section divider rules that match the page content width (Container is
-   max-w-[1152px] with px-6 gutters => 1104px) instead of stretching the
-   full viewport. Use .rule-top / .rule-bottom in place of border-t/border-b. */
-@layer components {
-  .rule-top,
-  .rule-bottom {
-    position: relative;
-  }
-  .rule-top::before,
-  .rule-bottom::after {
-    content: "";
-    position: absolute;
-    left: 1.5rem;
-    right: 1.5rem;
-    margin-inline: auto;
-    max-width: 1104px;
-    border-top: 1px solid var(--border-soft);
-    pointer-events: none;
-  }
-  .rule-top::before {
-    top: 0;
-  }
-  .rule-bottom::after {
-    bottom: 0;
-  }
+img {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 
 ::selection {
-  background: var(--accent-purple);
-  color: #ffffff;
+  background: var(--pink);
+  color: var(--on-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

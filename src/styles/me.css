@@ -1,0 +1,493 @@
+/* Me page — quiet pieces that only live here. */
+
+/* A framed photo: hairline, rounded, flat. */
+.me-frame {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+/* 1. Hero: headline + three self-answering question cards */
+.me-hero {
+  padding-top: clamp(56px, 8vw, 104px);
+}
+.me-hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: clamp(40px, 6vw, 96px);
+  align-items: center;
+}
+.me-h1 {
+  font-size: clamp(30px, 3.4vw, 44px);
+  margin-top: 18px;
+  max-width: 18ch;
+}
+.me-lede {
+  margin-top: 22px;
+  max-width: 40ch;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.me-lede b {
+  font-weight: 500;
+  color: var(--ink);
+}
+.me-hero-art {
+  position: relative;
+}
+.me-hero-ph img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* the rest of her story */
+.me-story {
+  margin-top: 96px;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+}
+/* story on the left, her quote answering it on the right */
+.me-story {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(40px, 7vw, 120px);
+  align-items: start;
+}
+.me-story-text p {
+  color: var(--muted);
+  font-size: clamp(16px, 1.3vw, 18px);
+  line-height: 1.8;
+}
+.me-story-text p + p {
+  margin-top: 1.1em;
+}
+.me-quote {
+  position: sticky;
+  top: 96px;
+  margin: 0;
+  font-size: clamp(26px, 3vw, 42px);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+.me-quote span {
+  color: var(--faint);
+}
+@media (max-width: 900px) {
+  .me-story {
+    grid-template-columns: 1fr;
+  }
+  .me-quote {
+    position: static;
+  }
+}
+
+/* 2. Services: a notebook with index tabs */
+.me-nb {
+  margin-top: 8px;
+}
+.me-tabs {
+  display: flex;
+  gap: 4px;
+  padding-left: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.me-tabs::-webkit-scrollbar {
+  display: none;
+}
+.me-tab {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px 14px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  transform: translateY(6px);
+  transition: transform 0.25s var(--ease), color 0.2s, background-color 0.2s;
+}
+.me-tab::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dot);
+  opacity: 0.5;
+}
+.me-tab:hover {
+  color: var(--ink);
+  transform: translateY(3px);
+}
+.me-tab[aria-selected="true"] {
+  position: relative;
+  z-index: 2;
+  background: var(--surface);
+  color: var(--ink);
+  transform: translateY(1px);
+}
+.me-tab[aria-selected="true"]::before {
+  opacity: 1;
+}
+.me-tab-no {
+  display: none;
+}
+.me-page {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  grid-template-rows: 1fr auto;
+  gap: 32px 56px;
+  min-height: 360px;
+  padding: 36px 40px 28px 76px;
+  border: 1px solid var(--line);
+  border-radius: 4px var(--radius) var(--radius) var(--radius);
+  background: var(--surface);
+}
+/* binder holes down the left edge */
+.me-page::before {
+  content: "";
+  position: absolute;
+  left: 26px;
+  top: 40px;
+  bottom: 40px;
+  width: 16px;
+  background: radial-gradient(circle, var(--bg) 5px, var(--line-strong) 5.5px 6.5px, transparent 7px) center top / 16px 48px repeat-y;
+}
+.me-page-in {
+  animation: me-page-in 0.4s var(--ease);
+}
+@keyframes me-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.me-page-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.me-page-no {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dot);
+  font-variant-numeric: tabular-nums;
+}
+.me-soon {
+  padding: 3px 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--ink);
+}
+.me-page-h {
+  margin-top: 18px;
+  font-size: clamp(22px, 2.4vw, 30px);
+}
+.me-page-body {
+  margin-top: 16px;
+  max-width: 42ch;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.me-page-side {
+  display: grid;
+  gap: 12px;
+  align-content: center;
+}
+.me-stat {
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.me-stat b {
+  display: block;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1;
+}
+.me-stat .lab {
+  display: block;
+  margin-top: 8px;
+}
+.me-stat p {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.me-page-nav {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* 3. Process notes: no tape, just the quiet card */
+.me-note {
+  position: relative;
+}
+
+/* 4. The human behind it all: highlighted phrases drive a picture book */
+.me-human-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.me-human-h {
+  font-size: clamp(22px, 2.2vw, 28px);
+  margin-top: 14px;
+}
+.me-human-copy > p:not(.me-hint) {
+  margin-top: 20px;
+  max-width: 52ch;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.8;
+}
+/* a highlighter stroke in the photo's colour */
+/* Shared with the story text (.mark): same thin line that fills on hover. */
+button.hl,
+.mark {
+  font: inherit;
+  color: var(--ink);
+  padding: 0 0.15em;
+  margin: 0 -0.05em;
+  border-radius: 4px;
+  background: linear-gradient(
+      color-mix(in srgb, var(--hl) 28%, transparent),
+      color-mix(in srgb, var(--hl) 28%, transparent)
+    )
+    0 92% / 100% 2px no-repeat;
+  cursor: pointer;
+  transition: background-size 0.25s var(--ease);
+}
+button.hl:hover,
+button.hl:focus-visible,
+button.hl[aria-pressed="true"],
+.mark:hover,
+.mark:focus-visible {
+  background-size: 100% 100%;
+}
+.mark {
+  cursor: default;
+}
+a.mark {
+  cursor: pointer;
+}
+.me-hint {
+  margin-top: 22px;
+  color: var(--faint);
+}
+
+/* the picture book */
+.me-book-wrap {
+  --pw: min(300px, calc((100vw - 2 * var(--gut) - 28px) / 2));
+  --ph: calc(var(--pw) * 1.38);
+  display: grid;
+  justify-items: center;
+  gap: 26px;
+}
+.me-book {
+  position: relative;
+  width: calc(var(--pw) * 2);
+  height: var(--ph);
+  perspective: 2200px;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+  outline: none;
+}
+.me-book.is-dragging {
+  cursor: grabbing;
+}
+/* the cover peeking out behind the pages */
+.me-book::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-2);
+  box-shadow: var(--shadow);
+}
+.me-book:focus-visible::before {
+  outline: 2px solid var(--pink);
+  outline-offset: 6px;
+}
+.me-pg,
+.me-face {
+  position: absolute;
+  top: 0;
+  width: var(--pw);
+  height: 100%;
+  margin: 0;
+  padding: clamp(12px, 2vw, 20px);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+}
+.me-pg-l,
+.me-face-l {
+  left: 0;
+  border-radius: 8px 2px 2px 8px;
+  /* fold shadow towards the spine */
+  box-shadow: inset -24px 0 28px -24px var(--spine);
+}
+.me-pg-r,
+.me-face-r {
+  border-radius: 2px 8px 8px 2px;
+  box-shadow: inset 24px 0 28px -24px var(--spine);
+}
+.me-pg-r {
+  left: var(--pw);
+}
+.me-pg-intro,
+.me-pg-end {
+  justify-content: center;
+  align-items: flex-start;
+  gap: 14px;
+}
+.me-pg-intro .d,
+.me-pg-end .d {
+  font-size: clamp(18px, 2vw, 24px);
+}
+.me-pg-end {
+  align-items: center;
+  text-align: center;
+}
+
+/* a leaf: two faces back to back, hinged on the spine */
+.me-leaf {
+  position: absolute;
+  top: 0;
+  left: var(--pw);
+  width: var(--pw);
+  height: 100%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  /* swap stacking order half way through the turn */
+  transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1), z-index 0s linear;
+}
+.me-leaf.is-drag {
+  transition: none;
+}
+.me-face {
+  left: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.me-face-l {
+  transform: rotateY(180deg);
+}
+/* a tiny peel on the next page invites a turn */
+.me-book:not(.is-dragging) .me-leaf.is-next:hover {
+  transform: rotateY(-7deg) !important;
+  transition-delay: 0s !important;
+}
+.me-shot {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.me-shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.me-shot.is-baked img {
+  object-fit: contain;
+}
+.me-face figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+}
+.me-book-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.me-book-nav .round-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+@media (max-width: 1000px) {
+  .me-hero-grid,
+  .me-human-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .me-page {
+    grid-template-columns: 1fr;
+    padding: 32px 22px 26px 60px;
+  }
+  .me-page::before {
+    left: 18px;
+  }
+  .me-page-side {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .me-story {
+    margin-top: 64px;
+  }
+  .me-page-side {
+    grid-template-columns: 1fr;
+  }
+  .me-tabs {
+    padding-left: 10px;
+  }
+  .me-face figcaption .muted {
+    display: none;
+  }
+  .me-face figcaption .lab {
+    font-size: 10px;
+  }
+  /* no binder holes on a phone: give the page its full width */
+  .me-page {
+    padding: 26px 20px 22px;
+  }
+  .me-page::before {
+    display: none;
+  }
+  /* taller pages so the photos and words aren't postage stamps */
+  .me-book-wrap {
+    --ph: calc(var(--pw) * 1.75);
+  }
+  .me-pg,
+  .me-face {
+    padding: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .me-leaf,
+  button.hl,
+  .me-tab {
+    transition: none;
+  }
+  .me-page-in {
+    animation: none;
+  }
+}

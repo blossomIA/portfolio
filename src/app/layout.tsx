@@ -1,38 +1,34 @@
 import type { Metadata } from "next";
-import { Inter, Fraunces, DM_Sans } from "next/font/google";
+import { Archivo } from "next/font/google";
+import { Nav } from "@/components/site/Nav";
+import { Footer } from "@/components/site/Footer";
 import "./globals.css";
+import "@/styles/site.css";
+import "@/styles/home.css";
+import "@/styles/case-study.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+// One variable family; the width axis gives us condensed display type,
+// regular text and expanded labels from a single font file.
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
   display: "swap",
-});
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  display: "swap",
-  axes: ["SOFT", "WONK", "opsz"],
-});
-
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
-  subsets: ["latin"],
-  display: "swap",
-  axes: ["opsz"],
+  axes: ["wdth"],
 });
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://amarachiblossom.com";
 
+const description =
+  "Product designer creating modern digital products through user research, systems thinking, AI, and clean execution.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: "Amarachi Blossom, Product Designer",
-    template: "%s",
+    template: "%s · Amarachi Blossom",
   },
-  description:
-    "Product designer creating digital products through user research, systems thinking, and clean execution.",
+  description,
   keywords: [
     "product designer",
     "UX designer",
@@ -48,14 +44,12 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: "Amarachi Blossom",
     title: "Amarachi Blossom, Product Designer",
-    description:
-      "Product designer creating digital products through user research, systems thinking, and clean execution.",
+    description,
   },
   twitter: {
     card: "summary_large_image",
     title: "Amarachi Blossom, Product Designer",
-    description:
-      "Product designer creating digital products through user research, systems thinking, and clean execution.",
+    description,
   },
 };
 
@@ -63,10 +57,28 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${fraunces.variable} ${dmSans.variable} h-full antialiased`}
+      className={archivo.variable}
+      data-scroll-behavior="smooth"
+      data-theme="dark"
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-background text-ink">
-        {children}
+      <head>
+        {/* Apply a saved theme before first paint (charcoal is the default). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`,
+          }}
+        />
+      </head>
+      <body>
+        <a className="skip" href="#main">
+          Skip to content
+        </a>
+        <Nav />
+        <main id="main" className="page">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );

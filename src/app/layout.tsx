@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Archivo } from "next/font/google";
 import { Nav } from "@/components/site/Nav";
 import { Footer } from "@/components/site/Footer";
+import { site } from "@/lib/site";
 import "./globals.css";
 import "@/styles/site.css";
 import "@/styles/home.css";
@@ -16,41 +17,77 @@ const archivo = Archivo({
   axes: ["wdth"],
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://amarachiblossom.com";
-
-const description =
-  "Product designer creating modern digital products through user research, systems thinking, AI, and clean execution.";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(site.url),
   title: {
-    default: "Amarachi Blossom, Product Designer",
-    template: "%s · Amarachi Blossom",
+    default: `${site.name}, ${site.role}`,
+    template: `%s · ${site.name}`,
   },
-  description,
+  description: site.description,
+  applicationName: site.name,
   keywords: [
     "product designer",
+    "product designer Germany",
     "UX designer",
-    "portfolio",
+    "UI/UX designer",
     "design systems",
     "user research",
-    "Amarachi Blossom",
+    "AI UX research",
+    "portfolio",
+    site.name,
   ],
-  authors: [{ name: "Amarachi Blossom" }],
-  creator: "Amarachi Blossom",
+  authors: [{ name: site.name, url: site.url }],
+  creator: site.name,
   openGraph: {
     type: "website",
-    url: siteUrl,
-    siteName: "Amarachi Blossom",
-    title: "Amarachi Blossom, Product Designer",
-    description,
+    locale: "en_US",
+    siteName: site.name,
+    title: `${site.name}, ${site.role}`,
+    description: site.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Amarachi Blossom, Product Designer",
-    description,
+    title: `${site.name}, ${site.role}`,
+    description: site.description,
   },
+  robots: { index: true, follow: true },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#121114" },
+    { media: "(prefers-color-scheme: light)", color: "#f9f7f2" },
+  ],
+};
+
+/** Who she is, for search engines: a Person and the website she owns. */
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${site.url}/#person`,
+      name: site.name,
+      jobTitle: site.role,
+      description: site.description,
+      url: site.url,
+      image: `${site.url}/images/portrait.png`,
+      email: `mailto:${site.email}`,
+      address: { "@type": "PostalAddress", addressCountry: "DE" },
+      homeLocation: { "@type": "Country", name: site.location },
+      knowsAbout: site.skills,
+      sameAs: Object.values(site.socials),
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${site.url}/#website`,
+      url: site.url,
+      name: site.name,
+      description: site.short,
+      publisher: { "@id": `${site.url}/#person` },
+      inLanguage: "en",
+    },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -63,6 +100,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+        />
         {/* Apply a saved theme before first paint (charcoal is the default). */}
         <script
           dangerouslySetInnerHTML={{

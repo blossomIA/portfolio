@@ -36,8 +36,8 @@ export function Contact() {
           <p className="sub">I&apos;d love to hear about it.</p>
           <p className="lede">
             Have a project in mind? Want to explore collaboration? Just want to
-            talk design? My response time is embarrassingly fast for someone in
-            this time zone.
+            talk design? I&apos;m based in Germany (CET) and my response time is
+            embarrassingly fast for any time zone.
           </p>
           <div className="chans">
             {channels.map((c) => (

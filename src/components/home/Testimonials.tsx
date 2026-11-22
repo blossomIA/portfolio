@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef } from "react";
+import { DragRail, type DragRailApi } from "@/components/site/DragRail";
 import { Chevron } from "@/components/site/Icon";
 import { Section } from "@/components/site/Section";
 
@@ -37,12 +38,8 @@ const quotes = [
 ];
 
 export function Testimonials() {
-  const rail = useRef<HTMLDivElement>(null);
-  const step = (dir: 1 | -1) => {
-    const el = rail.current;
-    const card = el?.querySelector<HTMLElement>(".tc");
-    if (el && card) el.scrollBy({ left: dir * (card.offsetWidth + 12), behavior: "smooth" });
-  };
+  const rail = useRef<DragRailApi>(null);
+  const step = (dir: 1 | -1) => rail.current?.step(dir);
 
   return (
     <Section
@@ -60,7 +57,7 @@ export function Testimonials() {
         </div>
       }
     >
-      <div className="rail" ref={rail} tabIndex={0} aria-label="Testimonials, scroll sideways">
+      <DragRail label="Kind words" apiRef={rail}>
         {quotes.map((q) => (
           <article key={q.name} className="tc">
             <blockquote>{q.quote}</blockquote>
@@ -73,7 +70,7 @@ export function Testimonials() {
             </div>
           </article>
         ))}
-      </div>
+      </DragRail>
     </Section>
   );
 }

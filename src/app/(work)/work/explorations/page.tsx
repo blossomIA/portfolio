@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/meta";
 import { CaseHero, CaseStudy, Chapter } from "@/components/case-study/CaseStudy";
 import { Reel, type Slide } from "./_parts";
 
-export const metadata: Metadata = {
-  title: "Explorations",
-  description:
-    "A rotating reel of product shots, components, flows, and motion explorations from client work and personal experiments.",
-};
+export const metadata: Metadata = pageMeta({ title: "Explorations", description: "A rotating reel of product shots, components, flows, and motion explorations from client work and personal experiments.", path: "/work/explorations" });
 
 const img = (f: string) => `/images/carousel/${f}`;
 

@@ -16,7 +16,7 @@ export function Hero() {
           <p className="hero-ps">
             PS; Currently accepting <span>exciting design problems</span> ;)
             <br />
-            Anywhere in the world, good collaboration required.
+            Based in Germany, working anywhere in the world. Good collaboration required.
           </p>
           <div className="cta-row">
             <Link className="btn btn-solid" href="#work">

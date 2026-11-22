@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/meta";
 import Image from "next/image";
 import Link from "next/link";
 import { Montserrat_Alternates } from "next/font/google";
@@ -51,11 +52,7 @@ import { ModeSwitch } from "./_mode";
 import { Flow } from "./_flow";
 import "@/styles/cs-token-nest.css";
 
-export const metadata: Metadata = {
-  title: "Token Nest",
-  description:
-    "A UX/UI case study on designing a secure, intuitive cryptocurrency portfolio management app, from research to high-fidelity screens.",
-};
+export const metadata: Metadata = pageMeta({ title: "Token Nest", description: "A UX/UI case study on designing a secure, intuitive cryptocurrency portfolio management app, from research to high-fidelity screens.", path: "/work/token-nest" });
 
 /** a phone screenshot: file, alt text, and its pixel size (defaults to 85×172) */
 type Shot = [file: string, alt: string, width?: number, height?: number];
@@ -344,7 +341,14 @@ export default function TokenNest() {
       >
         <div className="tn-persona">
           <div className="tn-card tn-person">
-            <Slot name="Persona photo: Matt Davids" ratio="4 / 3" />
+            <Image
+              className="tn-person-photo"
+              src={img("persona-matt.webp")}
+              alt="Matt Davids, the Curious Investor persona"
+              width={636}
+              height={484}
+              sizes="(min-width: 1000px) 360px, 90vw"
+            />
             <p className="lab">Demographic</p>
             <dl>
               <div><dt>Name:</dt><dd>Matt Davids</dd></div>
@@ -407,7 +411,14 @@ export default function TokenNest() {
             </div>
           ))}
           <div className="tn-emp-ring" aria-hidden />
-          <Slot name="Persona photo (round, centre of the map)" ratio="1 / 1" round className="tn-emp-face" />
+          <Image
+            className="tn-emp-face"
+            src={img("persona-matt-face.webp")}
+            alt="Matt Davids"
+            width={440}
+            height={440}
+            sizes="140px"
+          />
         </div>
       </Chapter>
 

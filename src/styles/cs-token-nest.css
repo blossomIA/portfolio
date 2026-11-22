@@ -922,3 +922,29 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* persona photos */
+.tn-person-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: 50% 30%;
+  border-radius: calc(var(--radius) - 2px);
+}
+img.tn-emp-face {
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 50%;
+  background: var(--surface);
+  background-clip: padding-box;
+}
+@media (max-width: 820px) {
+  img.tn-emp-face {
+    position: static;
+    transform: none;
+    justify-self: center;
+  }
+}

@@ -419,21 +419,8 @@
 }
 
 /* TESTIMONIALS — quiet cards in a native scroll row */
-.rail {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: min(380px, 84vw);
-  gap: 12px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding-bottom: 4px;
-  scrollbar-width: none;
-}
-.rail::-webkit-scrollbar {
-  display: none;
-}
 .tc {
-  scroll-snap-align: start;
+  width: min(380px, 84vw);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);

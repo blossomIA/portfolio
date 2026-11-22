@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/meta";
 import Image from "next/image";
 import Link from "next/link";
 import { Fraunces } from "next/font/google";
@@ -27,11 +28,7 @@ import { Slot } from "@/components/case-study/Slot";
 import { Journey, type Stage } from "./_journey";
 import "@/styles/cs-baby-haven.css";
 
-export const metadata: Metadata = {
-  title: "Baby Haven",
-  description:
-    "Designing newborn care, an end-to-end case study of a mobile app that helps parents confidently navigate the earliest weeks of parenthood.",
-};
+export const metadata: Metadata = pageMeta({ title: "Baby Haven", description: "Designing newborn care, an end-to-end case study of a mobile app that helps parents confidently navigate the earliest weeks of parenthood.", path: "/work/baby-haven" });
 
 // The app's display face, shown only in the design-system typography specimen.
 const serif = Fraunces({ subsets: ["latin"], weight: ["400", "500", "600"], display: "swap" });

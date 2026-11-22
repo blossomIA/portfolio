@@ -14,7 +14,7 @@ export function Footer() {
               Amarachi Blossom<i>.</i>
             </p>
             <p className="muted" style={{ fontSize: 14 }}>
-              Product Designer
+              Product Designer · Based in Germany
             </p>
           </div>
           <q>Thanks for scrolling this far. You clearly have excellent taste.</q>

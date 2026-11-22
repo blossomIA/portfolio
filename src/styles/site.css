@@ -470,3 +470,80 @@ h2 .c-purple {
     margin-bottom: 10px;
   }
 }
+
+/* ── drag rail (components/site/DragRail.tsx) ─────────────────────────── */
+.drag-rail {
+  position: relative;
+  overflow: hidden;
+  padding: 6px 0 10px;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+  border-radius: var(--radius);
+}
+.drag-rail:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 4px;
+}
+.drag-rail-track {
+  --rail-skew: 0deg;
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  will-change: transform;
+}
+.drag-rail-track > * {
+  flex: 0 0 auto;
+  transform: skewX(var(--rail-skew));
+  transform-origin: 50% 100%;
+}
+.drag-rail-track img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+/* the round cursor that follows a mouse over the rail */
+.drag-rail-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--pink);
+  color: #1a0b13;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.4;
+  transition: opacity 0.2s, scale 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.drag-rail-cursor.is-on {
+  opacity: 1;
+  scale: 1;
+}
+.drag-rail.is-dragging .drag-rail-cursor.is-on {
+  scale: 0.85;
+}
+@media (pointer: fine) {
+  .drag-rail {
+    cursor: none;
+  }
+}
+/* on touch, fade the right edge to hint there's more to pull in */
+@media (pointer: coarse) {
+  .drag-rail {
+    -webkit-mask-image: linear-gradient(90deg, #000 84%, transparent);
+    mask-image: linear-gradient(90deg, #000 84%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drag-rail-cursor {
+    transition: none;
+  }
+}

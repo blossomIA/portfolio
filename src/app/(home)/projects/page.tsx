@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/meta";
 import { projects } from "@/lib/projects";
 import { WorkStack } from "@/components/work/WorkStack";
 
-export const metadata: Metadata = {
-  title: "Projects",
-  description:
-    "Case studies and explorations. Each project is a complete story, shaped by real user problems and rigorous process.",
-};
+export const metadata: Metadata = pageMeta({ title: "Projects", description: "Case studies and explorations. Each project is a complete story, shaped by real user problems and rigorous process.", path: "/projects" });
 
 export default function ProjectsPage() {
   return (

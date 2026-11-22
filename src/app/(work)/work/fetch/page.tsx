@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/meta";
 import Image from "next/image";
 import Link from "next/link";
 import { Poppins } from "next/font/google";
@@ -6,11 +7,7 @@ import { ChevronLeft, MousePointerClick } from "lucide-react";
 import { CaseStudy, Chapter } from "@/components/case-study/CaseStudy";
 import "@/styles/cs-fetch.css";
 
-export const metadata: Metadata = {
-  title: "Fetch",
-  description:
-    "A smarter way to deliver and negotiate, a case study of a user-driven delivery platform where customers and agents negotiate prices in real time.",
-};
+export const metadata: Metadata = pageMeta({ title: "Fetch", description: "A smarter way to deliver and negotiate, a case study of a user-driven delivery platform where customers and agents negotiate prices in real time.", path: "/work/fetch" });
 
 // The app's typeface, shown only in the typography specimen.
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });

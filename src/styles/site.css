@@ -109,6 +109,19 @@ h2 .c-purple {
   grid-row: 1 / span 2;
   align-self: end;
 }
+/* phones: one column, so the description uses the full width and the
+   aside (a link or arrows) sits underneath it */
+@media (max-width: 640px) {
+  .sh {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sh-aside {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    margin-top: 6px;
+  }
+}
 
 /* Older stacked heading block (case studies, /me) */
 .head {

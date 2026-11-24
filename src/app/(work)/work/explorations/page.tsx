@@ -13,7 +13,13 @@ const slides: Slide[] = [
   { key: "music", category: "Illustration", kind: "Now Playing", title: "Music Player", src: img("music.png"), width: 860, height: 1864, orientation: "mobile" },
   { key: "pricing", category: "Onboarding", kind: "Flow", title: "Pricing Plans", src: img("pricing.png"), width: 949, height: 651, orientation: "wide" },
   { key: "dark-card", category: "Marketing", kind: "Metrics", title: "Built To Feel Real", src: img("dark-card.png"), width: 960, height: 540, orientation: "wide" },
-  { key: "donut", category: "Marketing", kind: "Hero", title: "Susie's Donut", src: img("donut.png"), width: 2880, height: 2048, orientation: "wide" },
+  { key: "donut", category: "Marketing", kind: "Hero", title: "Susie's Donut", src: img("donut.png"), width: 2880, height: 2048, orientation: "wide",
+    variantName: "Oreos Infusion",
+    variants: [
+      { name: "Strawberry Delight", src: img("donut-strawberry.webp") },
+      { name: "Banana Frenzy", src: img("donut-banana.webp") },
+    ],
+  },
 ];
 
 export default function Explorations() {

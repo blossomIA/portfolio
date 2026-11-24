@@ -14,6 +14,10 @@ export type Slide = {
   width: number;
   height: number;
   orientation: "mobile" | "wide";
+  /** Extra states of the same design; clicking it in the viewer cycles through them. */
+  variants?: { name: string; src: string }[];
+  /** Name of the first state (the `src` above). */
+  variantName?: string;
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -115,16 +119,20 @@ export function Reel({ slides }: { slides: Slide[] }) {
             </div>
 
             <div className={`ex-stage ${s.orientation}`} onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
-              <Image
-                key={s.key}
-                src={s.src}
-                alt={s.title}
-                width={s.width}
-                height={s.height}
-                sizes={s.orientation === "mobile" ? "360px" : "(min-width: 1100px) 1000px, 92vw"}
-                loading="eager"
-                draggable={false}
-              />
+              {s.variants?.length ? (
+                <Variants key={s.key} slide={s} />
+              ) : (
+                <Image
+                  key={s.key}
+                  src={s.src}
+                  alt={s.title}
+                  width={s.width}
+                  height={s.height}
+                  sizes={s.orientation === "mobile" ? "360px" : "(min-width: 1100px) 1000px, 92vw"}
+                  loading="eager"
+                  draggable={false}
+                />
+              )}
             </div>
 
             <div className="ex-view-bot">
@@ -157,6 +165,55 @@ export function Reel({ slides }: { slides: Slide[] }) {
           </div>
         )}
       </dialog>
+    </div>
+  );
+}
+
+/**
+ * A design with several states, as in its Figma prototype: click (or tap, or
+ * Enter) and the next state sweeps in diagonally over the current one. All
+ * states load up front so the swap never waits on the network.
+ */
+function Variants({ slide }: { slide: Slide }) {
+  const frames = [{ name: slide.variantName ?? slide.title, src: slide.src }, ...(slide.variants ?? [])];
+  const n = frames.length;
+  const [cur, setCur] = useState(0);
+  const [under, setUnder] = useState<number | null>(null);
+  const following = frames[(cur + 1) % n];
+
+  const advance = () => {
+    setUnder(cur);
+    setCur((cur + 1) % n);
+  };
+
+  return (
+    <div className="ex-var">
+      <button
+        type="button"
+        className="ex-var-hit"
+        onClick={advance}
+        aria-label={`${slide.title}, ${frames[cur].name}. Show the next flavour, ${following.name}`}
+      >
+        {frames.map((f, k) => (
+          <Image
+            key={f.src}
+            src={f.src}
+            alt=""
+            width={slide.width}
+            height={slide.height}
+            sizes="(min-width: 1100px) 1000px, 92vw"
+            loading="eager"
+            draggable={false}
+            className={k === cur ? (under === null ? "is-on" : "is-on is-in") : k === under ? "is-under" : ""}
+          />
+        ))}
+      </button>
+      <span className="ex-var-hint" aria-live="polite">
+        <b>{frames[cur].name}</b>
+        <span aria-hidden> · </span>
+        {pad(cur + 1)}/{pad(n)}
+        <span className="ex-var-tap"> · Tap the donut</span>
+      </span>
     </div>
   );
 }

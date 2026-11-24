@@ -26,10 +26,10 @@ export function MeHero() {
             style={{ "--fc": "var(--pink)", "--rot": "-2deg" } as Vars}
           >
             <Image
-              src="/images/me-portrait.webp"
-              alt="Portrait of Amarachi Blossom"
-              width={1360}
-              height={1402}
+              src="/images/me-desk.webp"
+              alt="Amarachi smiling at her laptop"
+              width={980}
+              height={1080}
               priority
               sizes="(min-width: 1000px) 520px, 88vw"
             />

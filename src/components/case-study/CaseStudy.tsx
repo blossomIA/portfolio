@@ -56,7 +56,8 @@ export function CaseStudy({
       }
     >
       {hero}
-      <ChapterBar chapters={chapters} />
+      {/* A single chapter has nothing to jump between. */}
+      {chapters.length > 1 && <ChapterBar chapters={chapters} />}
       {children}
 
       {end ?? (

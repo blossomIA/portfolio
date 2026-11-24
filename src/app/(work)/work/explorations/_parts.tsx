@@ -16,10 +16,15 @@ export type Slide = {
   orientation: "mobile" | "wide";
   /** A live Figma prototype shown in the viewer instead of the still. */
   embed?: string;
+  /** A screen recording of the prototype, played in the viewer instead of the still. */
+  video?: string;
 };
 
 /** Width the Figma frames were designed at. */
 const FRAME_W = 1440;
+
+/** Pieces that open as a prototype (live or recorded) get a "Prototype" tag. */
+const isProto = (s: Slide) => Boolean(s.embed || s.video);
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -66,13 +71,8 @@ export function Reel({ slides }: { slides: Slide[] }) {
 
   const s = active === null ? null : slides[active];
 
-  // Grid shows everything at once; reel is one large row you scroll through.
+  // Grid shows everything at once; reel shows one piece at a time as you scroll.
   const [view, setView] = useState<"grid" | "reel">("grid");
-  const list = useRef<HTMLUListElement>(null);
-  const scrollReel = (dir: 1 | -1) => {
-    const el = list.current;
-    if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
-  };
 
   return (
     <div className="wrap">
@@ -84,23 +84,16 @@ export function Reel({ slides }: { slides: Slide[] }) {
             </button>
           ))}
         </div>
-        {view === "reel" && (
-          <div className="ex-bar-nav">
-            <button type="button" className="ex-btn" onClick={() => scrollReel(-1)} aria-label="Scroll back">
-              <Chevron dir="left" />
-            </button>
-            <button type="button" className="ex-btn" onClick={() => scrollReel(1)} aria-label="Scroll forward">
-              <Chevron dir="right" />
-            </button>
-          </div>
-        )}
       </div>
-      <ul ref={list} className={`ex-grid${view === "reel" ? " is-reel" : ""}`} aria-label="Explorations">
+      {view === "reel" ? (
+        <Scroller slides={slides} onOpen={open} />
+      ) : (
+      <ul className="ex-grid" aria-label="Explorations">
         {slides.map((sl, i) => (
           <li key={sl.key} className={`ex-item ${sl.orientation}`}>
             <button type="button" className="ex-tile" onClick={(e) => open(i, e.currentTarget)} aria-haspopup="dialog">
               <span className="ex-media">
-                {sl.embed && <span className="ex-badge">Prototype</span>}
+                {isProto(sl) && <span className="ex-badge">Prototype</span>}
                 <Image
                   src={sl.src}
                   alt={sl.title}
@@ -123,6 +116,7 @@ export function Reel({ slides }: { slides: Slide[] }) {
           </li>
         ))}
       </ul>
+      )}
 
       <dialog
         ref={dialog}
@@ -141,7 +135,7 @@ export function Reel({ slides }: { slides: Slide[] }) {
             <div className="ex-view-top">
               <span className="lab">
                 {s.category} <span aria-hidden>/</span> {s.kind}
-                {s.embed && <span className="ex-badge">Prototype</span>}
+                {isProto(s) && <span className="ex-badge">Prototype</span>}
               </span>
               <button type="button" className="ex-btn" onClick={close} aria-label="Close">
                 ×
@@ -151,6 +145,18 @@ export function Reel({ slides }: { slides: Slide[] }) {
             <div className={`ex-stage ${s.orientation}`} onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
               {s.embed ? (
                 <Prototype key={s.key} slide={s} />
+              ) : s.video ? (
+                <video
+                  key={s.key}
+                  className={`ex-video ${s.orientation}`}
+                  src={s.video}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  aria-label={`${s.title}, prototype recording`}
+                />
               ) : (
                 <Image
                   key={s.key}
@@ -195,6 +201,118 @@ export function Reel({ slides }: { slides: Slide[] }) {
           </div>
         )}
       </dialog>
+    </div>
+  );
+}
+
+/**
+ * Reel: the section pins while you scroll through it and shows one piece at a
+ * time; each stretch of scroll moves to the next. Dots and arrows jump too.
+ */
+function Scroller({ slides, onOpen }: { slides: Slide[]; onOpen: (i: number, el: HTMLButtonElement) => void }) {
+  const total = slides.length;
+  const track = useRef<HTMLDivElement>(null);
+  const [cur, setCur] = useState(0);
+
+  useEffect(() => {
+    let raf = 0;
+    const read = () => {
+      raf = 0;
+      const el = track.current;
+      if (!el) return;
+      const run = el.offsetHeight - el.firstElementChild!.clientHeight;
+      const p = -el.getBoundingClientRect().top / Math.max(run, 1);
+      setCur(Math.min(total - 1, Math.max(0, Math.floor(p * total))));
+    };
+    const on = () => {
+      if (!raf) raf = requestAnimationFrame(read);
+    };
+    read();
+    window.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("resize", on);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", on);
+      window.removeEventListener("resize", on);
+    };
+  }, [total]);
+
+  // Scroll the page to the middle of a piece's stretch, so scrolling and the
+  // controls always agree on which piece is showing.
+  const go = (i: number) => {
+    const el = track.current;
+    if (!el) return;
+    const n = Math.min(total - 1, Math.max(0, i));
+    const run = el.offsetHeight - el.firstElementChild!.clientHeight;
+    const top = el.getBoundingClientRect().top + window.scrollY + (run * (n + 0.5)) / total;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top, behavior: still ? "auto" : "smooth" });
+  };
+
+  const s = slides[cur];
+
+  return (
+    <div ref={track} className="ex-reel" style={{ height: `calc(${total} * 70vh + 100dvh - var(--pin))` }}>
+      <div className="ex-reel-pin">
+        <div className="ex-reel-stage">
+          {slides.map((sl, i) => (
+            <button
+              key={sl.key}
+              type="button"
+              className={`ex-reel-item ${sl.orientation}`}
+              data-on={i === cur || undefined}
+              data-dir={i < cur ? "past" : i > cur ? "next" : undefined}
+              tabIndex={i === cur ? 0 : -1}
+              aria-hidden={i !== cur}
+              aria-haspopup="dialog"
+              aria-label={`Open ${sl.title}`}
+              onClick={(e) => onOpen(i, e.currentTarget)}
+            >
+              {isProto(sl) && <span className="ex-badge">Prototype</span>}
+              <Image
+                src={sl.src}
+                alt={sl.title}
+                width={sl.width}
+                height={sl.height}
+                sizes={sl.orientation === "mobile" ? "(min-width: 900px) 320px, 50vw" : "(min-width: 1100px) 1000px, 92vw"}
+                loading={i <= 1 ? "eager" : "lazy"}
+                draggable={false}
+              />
+            </button>
+          ))}
+        </div>
+
+        <div className="ex-reel-bot">
+          <div className="ex-reel-cap" aria-live="polite">
+            <span className="lab">
+              {s.category} <span aria-hidden>/</span> {s.kind}
+            </span>
+            <span className="d ex-title">{s.title}</span>
+          </div>
+          <div className="ex-reel-dots ex-dots">
+            {slides.map((d, i) => (
+              <button
+                key={d.key}
+                type="button"
+                onClick={() => go(i)}
+                aria-label={`Go to ${d.title}`}
+                aria-current={cur === i}
+              />
+            ))}
+          </div>
+          <div className="ex-reel-nav">
+            <span className="lab ex-no">
+              {pad(cur + 1)} — {pad(total)}
+            </span>
+            <button type="button" className="ex-btn" onClick={() => go(cur - 1)} disabled={cur === 0} aria-label="Previous piece">
+              <Chevron dir="left" />
+            </button>
+            <button type="button" className="ex-btn" onClick={() => go(cur + 1)} disabled={cur === total - 1} aria-label="Next piece">
+              <Chevron dir="right" />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

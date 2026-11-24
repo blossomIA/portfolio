@@ -14,11 +14,12 @@ export type Slide = {
   width: number;
   height: number;
   orientation: "mobile" | "wide";
-  /** Extra states of the same design; clicking it in the viewer cycles through them. */
-  variants?: { name: string; src: string }[];
-  /** Name of the first state (the `src` above). */
-  variantName?: string;
+  /** A live Figma prototype shown in the viewer instead of the still. */
+  embed?: string;
 };
+
+/** Width the Figma frames were designed at. */
+const FRAME_W = 1440;
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -65,13 +66,41 @@ export function Reel({ slides }: { slides: Slide[] }) {
 
   const s = active === null ? null : slides[active];
 
+  // Grid shows everything at once; reel is one large row you scroll through.
+  const [view, setView] = useState<"grid" | "reel">("grid");
+  const list = useRef<HTMLUListElement>(null);
+  const scrollReel = (dir: 1 | -1) => {
+    const el = list.current;
+    if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
+  };
+
   return (
     <div className="wrap">
-      <ul className="ex-grid" aria-label="Explorations reel">
+      <div className="ex-bar">
+        <div className="ex-switch" role="group" aria-label="Layout">
+          {(["grid", "reel"] as const).map((v) => (
+            <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}>
+              {v === "grid" ? "Grid" : "Reel"}
+            </button>
+          ))}
+        </div>
+        {view === "reel" && (
+          <div className="ex-bar-nav">
+            <button type="button" className="ex-btn" onClick={() => scrollReel(-1)} aria-label="Scroll back">
+              <Chevron dir="left" />
+            </button>
+            <button type="button" className="ex-btn" onClick={() => scrollReel(1)} aria-label="Scroll forward">
+              <Chevron dir="right" />
+            </button>
+          </div>
+        )}
+      </div>
+      <ul ref={list} className={`ex-grid${view === "reel" ? " is-reel" : ""}`} aria-label="Explorations">
         {slides.map((sl, i) => (
           <li key={sl.key} className={`ex-item ${sl.orientation}`}>
             <button type="button" className="ex-tile" onClick={(e) => open(i, e.currentTarget)} aria-haspopup="dialog">
               <span className="ex-media">
+                {sl.embed && <span className="ex-badge">Prototype</span>}
                 <Image
                   src={sl.src}
                   alt={sl.title}
@@ -112,6 +141,7 @@ export function Reel({ slides }: { slides: Slide[] }) {
             <div className="ex-view-top">
               <span className="lab">
                 {s.category} <span aria-hidden>/</span> {s.kind}
+                {s.embed && <span className="ex-badge">Prototype</span>}
               </span>
               <button type="button" className="ex-btn" onClick={close} aria-label="Close">
                 ×
@@ -119,8 +149,8 @@ export function Reel({ slides }: { slides: Slide[] }) {
             </div>
 
             <div className={`ex-stage ${s.orientation}`} onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
-              {s.variants?.length ? (
-                <Variants key={s.key} slide={s} />
+              {s.embed ? (
+                <Prototype key={s.key} slide={s} />
               ) : (
                 <Image
                   key={s.key}
@@ -170,50 +200,56 @@ export function Reel({ slides }: { slides: Slide[] }) {
 }
 
 /**
- * A design with several states, as in its Figma prototype: click (or tap, or
- * Enter) and the next state sweeps in diagonally over the current one. All
- * states load up front so the swap never waits on the network.
+ * The piece's own Figma prototype, live: clicks behave exactly as they do in
+ * Figma. The still stays underneath until the prototype has loaded.
  */
-function Variants({ slide }: { slide: Slide }) {
-  const frames = [{ name: slide.variantName ?? slide.title, src: slide.src }, ...(slide.variants ?? [])];
-  const n = frames.length;
-  const [cur, setCur] = useState(0);
-  const [under, setUnder] = useState<number | null>(null);
-  const following = frames[(cur + 1) % n];
+function Prototype({ slide }: { slide: Slide }) {
+  const box = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0);
+  const [ready, setReady] = useState(false);
 
-  const advance = () => {
-    setUnder(cur);
-    setCur((cur + 1) % n);
+  // Figma draws the frame 1:1 at its own size, so the iframe is that size and
+  // scaled to fit; no letterboxing, and clicks land where they look.
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setScale(el.clientWidth / FRAME_W));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Figma sends no "ready" event without a registered app, so reveal it a
+  // few seconds after the frame loads, when its own loader has finished.
+  const reveal = useRef(0);
+  useEffect(() => () => window.clearTimeout(reveal.current), []);
+  const onLoad = () => {
+    reveal.current = window.setTimeout(() => setReady(true), 5000);
   };
 
   return (
-    <div className="ex-var">
-      <button
-        type="button"
-        className="ex-var-hit"
-        onClick={advance}
-        aria-label={`${slide.title}, ${frames[cur].name}. Show the next flavour, ${following.name}`}
-      >
-        {frames.map((f, k) => (
-          <Image
-            key={f.src}
-            src={f.src}
-            alt=""
-            width={slide.width}
-            height={slide.height}
-            sizes="(min-width: 1100px) 1000px, 92vw"
-            loading="eager"
-            draggable={false}
-            className={k === cur ? (under === null ? "is-on" : "is-on is-in") : k === under ? "is-under" : ""}
-          />
-        ))}
-      </button>
-      <span className="ex-var-hint" aria-live="polite">
-        <b>{frames[cur].name}</b>
-        <span aria-hidden> · </span>
-        {pad(cur + 1)}/{pad(n)}
-        <span className="ex-var-tap"> · Tap the donut</span>
-      </span>
+    <div ref={box} className="ex-proto" style={{ aspectRatio: `${slide.width} / ${slide.height}` }}>
+      <Image
+        src={slide.src}
+        alt=""
+        width={slide.width}
+        height={slide.height}
+        sizes="(min-width: 1100px) 1000px, 92vw"
+        loading="eager"
+        draggable={false}
+      />
+      {scale > 0 && (
+        <iframe
+          src={slide.embed}
+          title={`${slide.title}, interactive Figma prototype`}
+          allow="fullscreen"
+          width={FRAME_W}
+          height={Math.round((FRAME_W * slide.height) / slide.width)}
+          style={{ transform: `scale(${scale})` }}
+          onLoad={onLoad}
+          data-ready={ready || undefined}
+        />
+      )}
+      <span className="ex-proto-hint">{ready ? "Tap the small donut" : "Loading the prototype…"}</span>
     </div>
   );
 }

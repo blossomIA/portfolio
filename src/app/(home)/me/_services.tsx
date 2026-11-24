@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 import { Section } from "@/components/site/Section";
 import { Chevron } from "@/components/site/Icon";
+import { Box } from "lucide-react";
+import { toolMarks, type ToolKey } from "@/lib/tool-marks";
 
 type Vars = React.CSSProperties & Record<`--${string}`, string>;
 
@@ -12,13 +14,27 @@ type Vars = React.CSSProperties & Record<`--${string}`, string>;
  * ARIA tabs pattern, so the arrow keys move between them.
  */
 
-const services = [
+/** Short names for the tool chips (the marks carry the full name). */
+const toolNames: Partial<Record<ToolKey, string>> = { mcp: "MCP", claude: "Claude Code" };
+
+type Tool = ToolKey | "spline";
+
+const services: {
+  tab: string;
+  eyebrow: string;
+  label: string;
+  body: string;
+  dot: string;
+  tools: Tool[];
+  soon?: boolean;
+}[] = [
   {
     tab: "AI research",
     eyebrow: "AI-RESEARCH",
-    label: "Ai Powered UX Research",
+    label: "AI-Powered UX Research",
     body: "Turning transcripts, chat logs, and diary studies into shipping-grade insight, faster than a spreadsheet allows.",
     dot: "var(--pink)",
+    tools: ["claude", "notion", "miro"],
   },
   {
     tab: "Research",
@@ -26,6 +42,7 @@ const services = [
     label: "UX Research & Discovery",
     body: "Framing the problem before the pixels. Interviews, diary studies, competitive teardowns, journey maps.",
     dot: "var(--purple)",
+    tools: ["miro", "notion", "figma"],
   },
   {
     tab: "Design",
@@ -33,6 +50,7 @@ const services = [
     label: "Product Design",
     body: "End-to-end product work, from information architecture to high-fidelity, opinionated interfaces.",
     dot: "var(--cyan)",
+    tools: ["figma", "framer"],
   },
   {
     tab: "Systems",
@@ -40,6 +58,7 @@ const services = [
     label: "Design Systems",
     body: "Tokens, components, docs, treated as a product with its own release cadence, not a Figma library.",
     dot: "var(--pink)",
+    tools: ["figma", "notion", "github"],
   },
   {
     tab: "Prototyping",
@@ -47,13 +66,23 @@ const services = [
     label: "Prototyping & Testing",
     body: "Interactive prototypes that pressure-test the idea before engineering touches it.",
     dot: "var(--purple)",
+    tools: ["figma", "framer"],
+  },
+  {
+    tab: "Build",
+    eyebrow: "BUILD",
+    label: "Design to Code",
+    body: "Taking designs out of Figma and into working product: real components and real data, built with AI and MCP, then shipped.",
+    dot: "var(--cyan)",
+    tools: ["claude", "cursor", "mcp", "react", "nextjs", "github", "vercel"],
   },
   {
     tab: "3D",
     eyebrow: "ANIMATION",
     label: "3D Modelling",
     body: "Cinema 4D + Spline for brand systems, product marketing renders, and motion pieces.",
-    dot: "var(--cyan)",
+    dot: "var(--pink)",
+    tools: ["cinema4d", "spline"],
     soon: true,
   },
 ];
@@ -144,6 +173,23 @@ export function MeServices() {
               </div>
               <h3 className="d me-page-h">{s.label}</h3>
               <p className="me-page-body">{s.body}</p>
+              <div className="me-tools">
+                <span className="lab">Tools</span>
+                <ul>
+                  {s.tools.map((t) => (
+                    <li key={t}>
+                      {t === "spline" ? (
+                        <Box size={16} strokeWidth={1.8} aria-hidden />
+                      ) : (
+                        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden>
+                          <path d={toolMarks[t].path} fill="currentColor" />
+                        </svg>
+                      )}
+                      {t === "spline" ? "Spline" : (toolNames[t] ?? toolMarks[t].title)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
             <div className="me-page-side">

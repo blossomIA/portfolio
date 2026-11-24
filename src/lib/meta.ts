@@ -11,7 +11,7 @@ const shareImage = {
   url: "/opengraph-image",
   width: 1200,
   height: 630,
-  alt: `${site.name}, product designer based in ${site.location}`,
+  alt: `${site.name}, product designer who builds, based in ${site.location}`,
 };
 export function pageMeta({
   title,

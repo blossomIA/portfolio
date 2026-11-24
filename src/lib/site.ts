@@ -5,14 +5,14 @@
 export const site = {
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://amarachiblossom.com").replace(/\/$/, ""),
   name: "Amarachi Blossom",
-  role: "Product Designer",
+  role: "Product Designer who builds",
   location: "Germany",
   locationLine: "Based in Germany, working with teams worldwide",
   email: "hello@amarachiblossom.com",
   description:
-    "Amarachi Blossom is a product designer based in Germany, creating modern digital products through user research, systems thinking, AI, and clean execution.",
+    "Amarachi Blossom is a product designer who builds, based in Germany. She designs modern digital products and ships them in code, through user research, systems thinking, AI, and clean execution.",
   short:
-    "Product designer based in Germany. Modern digital products through user research, systems thinking, AI, and clean execution.",
+    "Product designer who builds, based in Germany. Modern digital products, designed and shipped through user research, systems thinking, AI, and clean execution.",
   socials: {
     linkedin: "https://linkedin.com/in/amarachiblossom",
     x: "https://twitter.com/amarachiblossom",

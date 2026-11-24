@@ -25,6 +25,10 @@ export const services = [
     body: "Interactive prototypes that pressure-test the idea before engineering touches it.",
   },
   {
+    title: "Design to code",
+    body: "Taking designs out of Figma and into working product: real components and real data, built with AI and MCP, then shipped.",
+  },
+  {
     title: "3D modelling",
     body: "Cinema 4D + Spline for brand systems, product marketing renders, and motion pieces.",
     soon: true,

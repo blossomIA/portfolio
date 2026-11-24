@@ -1,3 +1,5 @@
+import { Logo } from "./Logo";
+
 const socials = [
   { href: "https://linkedin.com/in/amarachiblossom", label: "LinkedIn" },
   { href: "https://twitter.com/amarachiblossom", label: "X" },
@@ -11,10 +13,10 @@ export function Footer() {
         <div className="bottom">
           <div>
             <p className="logo">
-              Amarachi Blossom<i>.</i>
+              <Logo />
             </p>
             <p className="muted" style={{ fontSize: 14 }}>
-              Product Designer · Based in Germany
+              Product Designer who builds · Based in Germany
             </p>
           </div>
           <q>Thanks for scrolling this far. You clearly have excellent taste.</q>

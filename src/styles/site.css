@@ -258,9 +258,15 @@ h2 .c-purple {
   letter-spacing: -0.02em;
   white-space: nowrap;
 }
-.logo i {
-  font-style: normal;
-  color: var(--pink);
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.logo-mark {
+  flex: none;
+  width: 36px;
+  height: 18px;
 }
 .nav-links {
   display: flex;

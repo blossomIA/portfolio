@@ -7,16 +7,16 @@ export function Hero() {
       <div className="wrap hero-grid">
         <div className="hero-copy">
           <h1 id="hero-title" className="hero-name">
-            Amarachi Blossom <span>Product designer</span>
+            Amarachi Blossom <span>Product designer who builds</span>
           </h1>
           <p className="hero-line">
-            Creates modern digital products through <b>user research</b>,{" "}
+            Designs and builds modern digital products through <b>user research</b>,{" "}
             <b>systems thinking</b>, <b>AI</b>, and <b>clean execution</b>.
           </p>
           <p className="hero-ps">
-            PS; Currently accepting <span>exciting design problems</span> ;)
+            ✨ Open to new roles and <span>problems worth building</span>
             <br />
-            Based in Germany, working anywhere in the world. Good collaboration required.
+            🌍 Based in Germany, working with teams worldwide
           </p>
           <div className="cta-row">
             <Link className="btn btn-solid" href="#work">

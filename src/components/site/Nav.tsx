@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Logo } from "./Logo";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { ThemeToggle } from "./ThemeToggle";
@@ -27,7 +28,7 @@ export function Nav() {
     <header className="nav">
       <div className="wrap nav-in">
         <Link className="logo" href="/" aria-label="Amarachi Blossom, home">
-          Amarachi Blossom<i>.</i>
+          <Logo />
         </Link>
 
         <nav className="nav-links" aria-label="Primary">

@@ -14,9 +14,9 @@ export function Work() {
       title="Selected work"
       desc={
         <>
-          &ldquo;I promise I didn&apos;t just watch YouTube videos ;) Each project
-          is a complete story. Not a UI showcase, a product story, each shaped
-          by real user problems and rigorous process.&rdquo;
+          No tutorial copies here, promise. Each project is a full product
+          story, not a UI showcase: real user problems, real research, and the
+          decisions that got it shipped. 🚀
         </>
       }
       aside={

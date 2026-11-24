@@ -201,6 +201,39 @@
   line-height: 1.65;
   color: var(--muted);
 }
+/* the tools behind each service */
+.me-tools {
+  margin-top: 26px;
+  display: grid;
+  gap: 10px;
+}
+.me-tools .lab {
+  color: var(--faint);
+}
+.me-tools ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.me-tools li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 13px 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--dot) 8%, transparent);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1;
+}
+.me-tools svg {
+  flex: none;
+  color: var(--ink);
+}
 .me-page-side {
   display: grid;
   gap: 12px;

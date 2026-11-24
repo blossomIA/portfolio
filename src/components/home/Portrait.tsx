@@ -37,7 +37,7 @@ export function Portrait() {
       <div className="print" ref={ref}>
         <Image
           src="/images/portrait.png"
-          alt="Amarachi Blossom, Product Designer and 3D Animator"
+          alt="Amarachi Blossom, product designer who builds"
           width={739}
           height={1033}
           priority
